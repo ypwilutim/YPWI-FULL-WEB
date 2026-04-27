@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrasi Guru - YPWI Luwu Timur</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #93d5f4;
+            --deep-green: #1f8a4a;
+            --bright-yellow: #eae830;
+            --soft-bg: #f8fdff;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: #2d3436; 
+            background-color: var(--soft-bg);
+        }
+
+        .navbar { 
+            background-color: rgba(147, 213, 244, 0.95) !important; 
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid var(--bright-yellow);
+            padding: 15px 0;
+        }
+        .navbar-brand { font-weight: 800; color: var(--deep-green) !important; font-size: 1.5rem; }
+        .nav-link { color: #064e3b !important; font-weight: 600; padding: 0 15px !important; }
+
+        .form-container { padding: 50px 0; }
+        .form-card {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(147, 213, 244, 0.25);
+            padding: 40px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-title {
+            color: var(--deep-green);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-control {
+            border-radius: 15px;
+            padding: 15px;
+            border: 2px solid var(--primary-blue);
+            margin-bottom: 20px;
+        }
+        .form-control:focus {
+            border-color: var(--deep-green);
+            box-shadow: 0 0 0 0.2rem rgba(31, 138, 74, 0.25);
+        }
+        .btn-submit {
+            background-color: var(--deep-green);
+            color: white;
+            border-radius: 50px;
+            padding: 15px;
+            font-weight: 800;
+            width: 100%;
+            border: 2px solid var(--bright-yellow);
+        }
+        .btn-submit:hover {
+            background-color: var(--bright-yellow);
+            color: var(--deep-green);
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="index.html">YPWI <span style="color:white">LUTIM</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item"><a class="nav-link" href="index.html#beranda">Beranda</a></li>
+                    <li class="nav-item"><a class="nav-link" href="login.html">Login</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section class="form-container">
+        <div class="container">
+            <div class="form-card">
+                <h2 class="form-title">Registrasi Guru</h2>
+                
+                <div class="mb-3">
+                    <label for="school" class="form-label">Pilih Asal Sekolah</label>
+                    <select class="form-control" id="school" required>
+                        <option value="">Pilih Sekolah</option>
+                    </select>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="teacher" class="form-label">Pilih Nama Guru</label>
+                    <select class="form-control" id="teacher" required>
+                        <option value="">Pilih Guru</option>
+                    </select>
+                    <small class="text-muted">Guru dengan email kosong perlu registrasi.</small>
+                </div>
+                
+                <div id="registrationForm" style="display: none;">
+                    <h4>Informasi Guru</h4>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label>Nama</label>
+                            <input type="text" class="form-control" id="nama" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>NIY</label>
+                            <input type="text" class="form-control" id="niy" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Jenis Kelamin</label>
+                            <input type="text" class="form-control" id="jenis_kelamin" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Tempat Lahir</label>
+                            <input type="text" class="form-control" id="tempat_lahir" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Tanggal Lahir</label>
+                            <input type="text" class="form-control" id="tanggal_lahir" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>No WA</label>
+                            <input type="text" class="form-control" id="no_wa" readonly>
+                        </div>
+                        <div class="col-12">
+                            <label>Alamat</label>
+                            <textarea class="form-control" id="alamat" readonly></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Username (Email)</label>
+                            <input type="email" class="form-control" id="username" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label>Password Baru</label>
+                            <input type="password" class="form-control" id="password" required>
+                        </div>
+                        <div class="col-12">
+                            <button type="button" class="btn btn-submit" id="registerBtn">Daftar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Load schools
+        async function loadSchools() {
+            try {
+                const response = await fetch('/api/tenants');
+                const schools = await response.json();
+                const select = document.getElementById('school');
+                schools.forEach(school => {
+                    const option = document.createElement('option');
+                    option.value = school.code;
+                    option.textContent = school.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading schools:', error);
+            }
+        }
+        loadSchools();
+
+        // Load teachers by school
+        document.getElementById('school').addEventListener('change', async function() {
+            const tenant = this.value;
+            const teacherSelect = document.getElementById('teacher');
+            teacherSelect.innerHTML = '<option value="">Pilih Guru</option>';
+            if (!tenant) return;
+            
+            try {
+                const response = await fetch(`/api/teachers-by-school?tenant=${tenant}`);
+                const teachers = await response.json();
+                teachers.forEach(teacher => {
+                    const option = document.createElement('option');
+                    option.value = teacher.id;
+                    option.textContent = teacher.nama;
+                    teacherSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading teachers:', error);
+            }
+        });
+
+        // Load teacher info
+        document.getElementById('teacher').addEventListener('change', async function() {
+            const teacherId = this.value;
+            if (!teacherId) {
+                document.getElementById('registrationForm').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/teacher-info?id=${teacherId}`);
+                const teacher = await response.json();
+                if (teacher.email && teacher.email.trim() !== '') {
+                    // Sudah ada email, redirect ke login
+                    alert('Email sudah ada. Silakan login.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                document.getElementById('nama').value = teacher.nama;
+                document.getElementById('niy').value = teacher.niy;
+                document.getElementById('jenis_kelamin').value = teacher.jenis_kelamin;
+                document.getElementById('tempat_lahir').value = teacher.tempat_lahir;
+                document.getElementById('tanggal_lahir').value = teacher.tanggal_lahir;
+                document.getElementById('no_wa').value = teacher.no_wa;
+                document.getElementById('alamat').value = teacher.alamat;
+                document.getElementById('username').value = ''; // Kosong untuk input email baru
+                document.getElementById('registrationForm').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading teacher info:', error);
+            }
+        });
+
+        // Register
+        document.getElementById('registerBtn').addEventListener('click', async function() {
+            const teacherId = document.getElementById('teacher').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            try {
+                const response = await fetch('/api/register-guru', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ teacherId, username, password })
+                });
+                const result = await response.json();
+                if (response.ok) {
+                    alert('Registrasi berhasil! Silakan login.');
+                    window.location.href = 'login.html';
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error registering:', error);
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

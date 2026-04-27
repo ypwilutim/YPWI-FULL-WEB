@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aturan Absensi - YPWI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f9ff; }
+    </style>
+</head>
+<body class="min-h-screen p-8">
+    <div class="max-w-4xl mx-auto">
+        <div class="flex items-center justify-between mb-8">
+            <div>
+                <a href="dashboard.html" class="text-[#1f8a4a] hover:underline mb-2 inline-block">
+                    <i class="bi bi-arrow-left"></i> Kembali ke Dashboard
+                </a>
+                <h1 class="text-2xl font-black text-gray-800">Aturan Absensi</h1>
+                <p class="text-gray-500">Pengaturan waktu dan keterangannya untuk absensi Datang/Pulang</p>
+            </div>
+            <button onclick="showAddModal()" class="bg-[#1f8a4a] text-white px-4 py-2 rounded-xl font-semibold hover:bg-[#2d6a4f]">
+                <i class="bi bi-plus"></i> Tambah Aturan
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="bg-white rounded-2xl p-6 mb-6 shadow-sm">
+            <div class="flex gap-4 flex-wrap">
+                <select id="tenant-filter" onchange="loadRules()" class="border border-gray-200 rounded-xl px-4 py-2">
+                    <option value="">Semua Tenant</option>
+                </select>
+                <select id="type-filter" onchange="loadRules()" class="border border-gray-200 rounded-xl px-4 py-2">
+                    <option value="">Semua Tipe</option>
+                    <option value="Datang">Datang</option>
+                    <option value="Pulang">Pulang</option>
+                </select>
+                <button onclick="copySystemRules()" class="bg-blue-500 text-white px-4 py-2 rounded-xl font-semibold hover:bg-blue-600">
+                    <i class="bi bi-copy"></i> Copy dari SYSTEM
+                </button>
+            </div>
+        </div>
+
+        <!-- Rules List -->
+        <div id="rules-container" class="space-y-4">
+            <p class="text-gray-400 text-center py-8">Memuat...</p>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        const userRole = payload.role;
+        const userTenant = payload.tenant;
+
+        loadTenants();
+        loadRules();
+
+        function loadTenants() {
+            fetch('/api/tenants', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(tenants => {
+                const select = document.getElementById('tenant-filter');
+                let options = '<option value="">Semua Tenant</option>';
+                if (userTenant !== 'YPWILUTIM') {
+                    options = '<option value="">Tenant Saya</option>';
+                }
+                select.innerHTML = options + tenants.map(t => 
+                    `<option value="${t.code}">${t.name}</option>`
+                ).join('');
+                if (userTenant !== 'YPWILUTIM') {
+                    select.value = userTenant;
+                }
+            });
+        }
+
+        function loadRules() {
+            const tenant = document.getElementById('tenant-filter').value;
+            const type = document.getElementById('type-filter').value;
+            
+            let url = '/api/attendance-rules?';
+            if (tenant) url += 'tenant_id=' + tenant + '&';
+            if (type) url += 'type=' + type;
+            
+            fetch(url, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(rules => {
+                const container = document.getElementById('rules-container');
+                if (rules.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400 text-center py-8">Belum ada aturan. Klik "Tambah Aturan" untuk membuat.</p>';
+                    return;
+                }
+                
+                // Group by tenant and type
+                const grouped = {};
+                rules.forEach(r => {
+                    const key = r.tenant_id;
+                    if (!grouped[key]) grouped[key] = { Datang: [], Pulang: [] };
+                    grouped[key][r.type].push(r);
+                });
+                
+                let html = '';
+                for (const [tenantId, types] of Object.entries(grouped)) {
+                    html += `<div class="bg-white rounded-2xl p-6 shadow-sm mb-4">`;
+                    html += `<h3 class="font-bold text-lg mb-4 text-[#1f8a4a]">${tenantId === 'SYSTEM' ? 'Aturan Default (SYSTEM)' : 'Tenant: ' + tenantId}</h3>`;
+                    
+                    ['Datang', 'Pulang'].forEach(type => {
+                        if (types[type].length > 0) {
+                            html += `<div class="mb-4"><h4 class="font-semibold text-gray-600 mb-2">${type}</h4>`;
+                            types[type].forEach(rule => {
+                                html += `
+                                <div class="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                                    <div>
+                                        <span class="font-medium">${rule.keterangan}</span>
+                                        <span class="text-gray-400 ml-2">(${rule.waktu_mulai.slice(0,5)} - ${rule.waktu_akhir.slice(0,5)})</span>
+                                    </div>
+                                    ${userTenant === 'YPWILUTIM' ? `<button onclick="deleteRule(${rule.id})" class="text-red-400 hover:text-red-600"><i class="bi bi-trash"></i></button>` : ''}
+                                </div>`;
+                            });
+                            html += `</div>`;
+                        }
+                    });
+                    html += `</div>`;
+                }
+                container.innerHTML = html;
+            });
+        }
+
+        function showAddModal() {
+            const tenantSelect = document.getElementById('tenant-filter');
+            const currentTenant = userTenant !== 'YPWILUTIM' ? userTenant : (tenantSelect.value || 'SYSTEM');
+            
+            const tenant_id = prompt('Tenant ID (SYSTEM untuk default):', currentTenant);
+            if (!tenant_id) return;
+            
+            const type = prompt('Tipe (Datang/Pulang):', 'Datang');
+            if (!type) return;
+            
+            const waktu_mulai = prompt('Waktu Mulai (HH:MM):', '06:00');
+            if (!waktu_mulai) return;
+            
+            const waktu_akhir = prompt('Waktu Akhir (HH:MM):', '07:00');
+            if (!waktu_akhir) return;
+            
+            const keterangan = prompt('Keterangan:', 'Tepat Waktu');
+            if (!keterangan) return;
+
+            fetch('/api/attendance-rules', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    tenant_id,
+                    type,
+                    waktu_mulai: waktu_mulai + ':00',
+                    waktu_akhir: waktu_akhir + ':00',
+                    keterangan
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert('Aturan berhasil ditambahkan!');
+                loadRules();
+            })
+            .catch(err => {
+                alert('Gagal: ' + err.message);
+            });
+        }
+
+        function deleteRule(id) {
+            if (!confirm('Hapus aturan ini?')) return;
+            fetch('/api/attendance-rules/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(() => {
+                loadRules();
+            });
+        }
+
+        function copySystemRules() {
+            const tenant_id = prompt('Copy ke Tenant ID:', userTenant !== 'YPWILUTIM' ? userTenant : '');
+            if (!tenant_id) return;
+            
+            fetch('/api/attendance-rules?tenant_id=SYSTEM', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(rules => {
+                if (rules.length === 0) {
+                    alert('Tidak ada rules SYSTEM');
+                    return;
+                }
+                
+                const promises = rules.map(rule => 
+                    fetch('/api/attendance-rules', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            tenant_id,
+                            type: rule.type,
+                            waktu_mulai: rule.waktu_mulai,
+                            waktu_akhir: rule.waktu_akhir,
+                            keterangan: rule.keterangan
+                        })
+                    })
+                );
+                
+                Promise.all(promises).then(() => {
+                    alert('Berhasil copy rules ke ' + tenant_id);
+                    loadRules();
+                });
+            });
+        }
+    </script>
+</body>
+</html>

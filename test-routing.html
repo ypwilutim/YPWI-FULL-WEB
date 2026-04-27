@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Role-Based Routing</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; }
+        .route-test { margin: 10px 0; padding: 10px; border-left: 4px solid #007bff; background: #f8f9fa; }
+        .route-match { border-left-color: #28a745; background: #d4edda; }
+        .route-no-match { border-left-color: #dc3545; background: #f8d7da; }
+    </style>
+</head>
+<body>
+    <h1>Test Role-Based Routing System</h1>
+
+    <div class="test-section info">
+        <h3>1. Routing Logic Overview</h3>
+        <div>
+            <strong>Source Column:</strong><br>
+            - Admin/Bendahara/Ketua: dari kolom <code>jabatan</code><br>
+            - Siswa: dari kolom <code>sebagai</code><br><br>
+
+            <strong>Unit YPWILUTIM (Pusat):</strong><br>
+            - jabatan contains 'admin/operator/tu/administrasi' → /admin/pusat<br>
+            - jabatan contains 'bendahara/keuangan/finance' → /bendahara/pusat<br>
+            - jabatan contains 'ketua/kepala/pimpinan/leader' → /ketua/pusat<br>
+            - jabatan lainnya → /yayasan<br><br>
+
+            <strong>Unit Lain (Sekolah):</strong><br>
+            - jabatan contains 'admin/operator/tu/administrasi' → /admin/sekolah<br>
+            - jabatan contains 'bendahara/keuangan/finance' → /bendahara/sekolah<br>
+            - jabatan contains 'ketua/kepala/pimpinan/leader' → /ketua/sekolah<br>
+            - jabatan lainnya → /guru<br><br>
+
+            <strong>Siswa:</strong><br>
+            - sebagai = 'siswa' → /student (semua unit)
+        </div>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. Test Scenarios</h3>
+        <div id="test-scenarios"></div>
+    </div>
+
+    <div class="test-section success">
+        <h3>3. Manual Test</h3>
+        <p>Test login dengan berbagai kombinasi:</p>
+        <button onclick="testLogin('admin@ypwi.sch.id', 'password')">Test Admin Pusat</button>
+        <button onclick="testLogin('guru@school.sch.id', 'password')">Test Guru Sekolah</button>
+        <button onclick="testLogin('siswa@school.sch.id', 'password')">Test Siswa</button>
+        <div id="login-result" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="test-section info">
+        <h3>4. Expected Database Users</h3>
+        <p>Silakan test dengan user yang ada di database:</p>
+        <ul>
+            <li><strong>Admin Pusat:</strong> Unit YPWILUTIM + jabatan admin/operator</li>
+            <li><strong>Guru Sekolah:</strong> Unit selain YPWILUTIM + jabatan selain admin/bendahara/ketua</li>
+            <li><strong>Siswa:</strong> sebagai = 'Siswa'</li>
+        </ul>
+    </div>
+
+    <script>
+        // Generate test scenarios
+        function generateTestScenarios() {
+            const scenarios = [
+                { unit: 'YPWILUTIM', jabatan: 'Admin', sebagai: 'Admin', expected: '/admin/pusat', role: 'Admin Pusat' },
+                { unit: 'YPWILUTIM', jabatan: 'Bendahara', sebagai: 'Bendahara', expected: '/bendahara/pusat', role: 'Bendahara Pusat' },
+                { unit: 'YPWILUTIM', jabatan: 'Ketua', sebagai: 'Ketua', expected: '/ketua/pusat', role: 'Ketua Pusat' },
+                { unit: 'YPWILUTIM', jabatan: 'Guru', sebagai: 'Guru', expected: '/yayasan', role: 'Staf Yayasan' },
+                { unit: 'TKITWI01', jabatan: 'Admin', sebagai: 'Admin', expected: '/admin/sekolah', role: 'Admin Sekolah' },
+                { unit: 'TKITWI01', jabatan: 'Bendahara', sebagai: 'Bendahara', expected: '/bendahara/sekolah', role: 'Bendahara Sekolah' },
+                { unit: 'TKITWI01', jabatan: 'Kepala Sekolah', sebagai: 'Kepala Sekolah', expected: '/ketua/sekolah', role: 'Kepala Sekolah' },
+                { unit: 'TKITWI01', jabatan: 'Guru', sebagai: 'Guru', expected: '/guru', role: 'Guru' },
+                { unit: 'ANY', jabatan: 'ANY', sebagai: 'Siswa', expected: '/student', role: 'Siswa' }
+            ];
+
+            let html = '';
+            scenarios.forEach((scenario, index) => {
+                const isPusat = scenario.unit === 'YPWILUTIM';
+                const isSiswa = scenario.sebagai === 'Siswa';
+
+                html += `
+                    <div class="route-test">
+                        <strong>Test ${index + 1}:</strong> ${scenario.unit} + ${scenario.jabatan} (${scenario.sebagai})<br>
+                        <strong>Expected:</strong> ${scenario.expected} (${scenario.role})<br>
+                        <strong>Logic:</strong> ${isSiswa ? 'Siswa check' : (isPusat ? 'Pusat unit logic' : 'School unit logic')}
+                    </div>
+                `;
+            });
+
+            document.getElementById('test-scenarios').innerHTML = html;
+        }
+
+        function testLogin(email, password) {
+            const resultDiv = document.getElementById('login-result');
+
+            resultDiv.innerHTML = '<div class="info">Testing login...</div>';
+
+            fetch('/api/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: email, password: password })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Login Success!</strong><br>
+                            <strong>User:</strong> ${data.user.nama} (${data.role})<br>
+                            <strong>Tenant:</strong> ${data.tenant}<br>
+                            <strong>Route:</strong> ${data.route}<br>
+                            <strong>Token:</strong> ${data.token ? 'Generated' : 'Missing'}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>❌ Login Failed:</strong> ${data.error}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error:</strong> ${error.message}
+                    </div>
+                `;
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            generateTestScenarios();
+            console.log('Role-based routing test page loaded');
+        });
+    </script>
+</body>
+</html>

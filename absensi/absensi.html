@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Absensi - YPWI Luwu Timur</title>
+    <meta name="theme-color" content="#1f8a4a">
+    <meta name="description" content="YPWI Absensi - Sistem Absensi Digital">
+    <link rel="manifest" href="/manifest.json">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1f8a4a',
+                        secondary: '#93d5f4',
+                        accent: '#eae830',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        info: '#3b82f6'
+                    }
+                }
+            }
+        }
+    </script>
+    
+
+    <style>
+        :root {
+            --primary-blue: #93d5f4;
+            --deep-green: #1f8a4a;
+            --bright-yellow: #eae830;
+            --soft-bg: #f8fdff;
+        }
+
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            color: #2d3436; 
+            background-color: var(--soft-bg);
+        }
+
+        .navbar { 
+            background-color: rgba(147, 213, 244, 0.95) !important; 
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid var(--bright-yellow);
+            padding: 15px 0;
+        }
+        .navbar-brand { font-weight: 800; color: var(--deep-green) !important; font-size: 1.5rem; }
+        .nav-link { color: #064e3b !important; font-weight: 600; padding: 0 15px !important; }
+        
+        /* Mirror video for front camera */
+        #qr-video.mirror {
+            transform: scaleX(-1);
+        }
+
+        .content-container { padding: 50px 0; }
+        .content-card {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(147, 213, 244, 0.25);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .content-title {
+            color: var(--deep-green);
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .btn-custom {
+            background-color: var(--deep-green);
+            color: white;
+            border-radius: 50px;
+            padding: 10px 25px;
+            font-weight: 600;
+            border: 2px solid var(--bright-yellow);
+        }
+        .btn-custom:hover {
+            background-color: var(--bright-yellow);
+            color: var(--deep-green);
+        }
+        .attendance-table th, .attendance-table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body class="bg-black font-sans overflow-hidden">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 bg-gradient-to-r from-green-600 to-blue-600 text-white py-2 px-4 z-50 flex justify-between items-center">
+        <div class="flex items-center gap-2">
+            <i class="bi bi-qr-code-scan"></i>
+            <span class="font-bold text-sm">YPWI Absensi</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div id="current-time" class="font-bold text-sm"></div>
+        </div>
+    </header>
+
+    <!-- Fullscreen Camera -->
+    <div class="fixed inset-0 pt-10 pb-24">
+        <video id="qr-video" class="w-full h-full object-cover"></video>
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div class="scan-box w-56 h-56 border-4 border-yellow-400 rounded-2xl opacity-90 bg-black/20"></div>
+        </div>
+        <div class="absolute top-12 left-0 right-0 text-center">
+            <span class="bg-black/50 text-white px-4 py-1 rounded-full text-xs">Arahkan QR ke dalam kotak</span>
+        </div>
+    </div>
+
+    <!-- Bottom Controls -->
+    <div class="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-sm py-3 px-4 flex justify-center gap-3 z-50">
+        <button id="switchCameraBtn" class="flex-1 py-3 bg-blue-600 text-white rounded-full font-bold text-sm">
+            <i class="bi bi-camera-fill me-1"></i> Kamera
+        </button>
+        <button id="stopScanBtn" class="flex-1 py-3 bg-red-600 text-white rounded-full font-bold text-sm">
+            <i class="bi bi-power me-1"></i> Matikan
+        </button>
+    </div>
+
+    <!-- Result Overlay -->
+    <div id="result" class="fixed bottom-28 left-4 right-4 bg-white rounded-xl p-4 text-center shadow-xl z-40">
+        <div class="text-gray-400 text-sm">Siap scan...</div>
+    </div>
+
+    <!-- Device Verification Modal -->
+    <div id="device-verification" class="fixed inset-0 bg-black z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-8 text-center max-w-sm mx-4">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <h3 class="text-lg font-bold">Memverifikasi...</h3>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+    
+    <script>
+        // Device verification on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check localStorage immediately
+            const deviceId = localStorage.getItem('current_device_id');
+            const deviceName = localStorage.getItem('current_device_name');
+            const deviceLocation = localStorage.getItem('current_device_location');
+            const tenantId = localStorage.getItem('current_tenant_id');
+            
+            console.log('Page loaded, checking device:', { deviceId, deviceName, deviceLocation, tenantId });
+            
+            // Check if device exists
+            if (!deviceId || deviceId === 'undefined' || deviceId === 'null') {
+                console.log('No device found in localStorage, redirecting to input-device...');
+                document.getElementById('device-verification').classList.add('hidden');
+                document.getElementById('device-verification').style.display = 'none';
+                window.location.href = '/absensi/input-device.html';
+                return;
+            }
+            
+            // Device verified, start camera
+            document.getElementById('device-verification').classList.add('hidden');
+            document.getElementById('device-verification').style.display = 'none';
+                
+            // Start camera
+            startAttendanceScanner();
+            
+            // Debug: show tenant ID in console
+            console.log('Device info:', { deviceId, deviceName, deviceLocation, tenantId });
+            
+            // Start clock
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
+        
+        function loadTenantInfo(tenantId) {
+            console.log('Loading tenant info, ID:', tenantId);
+            if (tenantId) {
+                fetch('/api/tenants/' + tenantId)
+                    .then(res => {
+                        console.log('Tenant API response status:', res.status);
+                        return res.json();
+                    })
+                    .then(data => {
+                        console.log('Tenant data:', data);
+                        if (data.name) {
+                            document.getElementById('tenant-name-display').textContent = data.name;
+                        } else {
+                            document.getElementById('tenant-name-display').textContent = 'Unit #' + tenantId;
+                        }
+                    })
+                    .catch(err => {
+                        console.error('Error loading tenant:', err);
+                        document.getElementById('tenant-name-display').textContent = 'Unit #' + tenantId;
+                    });
+            } else {
+                document.getElementById('tenant-name-display').textContent = 'Tidak ada unit';
+            }
+        }
+        
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+        
+        // QR Scanner for attendance
+        let videoStream = null;
+        let isScanning = false;
+        let isProcessing = false;
+        let animationFrameId = null;
+        
+        document.getElementById('stopScanBtn').addEventListener('click', stopAttendanceScanner);
+        document.getElementById('switchCameraBtn').addEventListener('click', switchCamera);
+        
+        // Camera facing mode
+        let currentFacing = 'environment';
+        
+        function startAttendanceScanner() {
+            const video = document.getElementById('qr-video');
+            const stopBtn = document.getElementById('stopScanBtn');
+            
+            stopBtn.classList.remove('hidden');
+            
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: currentFacing,
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            })
+                .then(stream => {
+                    videoStream = stream;
+                    video.srcObject = stream;
+                    video.play();
+                    isScanning = true;
+                    scanQRFrame();
+                    
+                    // Mirror video when using front camera
+                    if (currentFacing === 'user') {
+                        video.classList.add('mirror');
+                    } else {
+                        video.classList.remove('mirror');
+                    }
+                })
+                .catch(err => {
+                    console.error('Camera error:', err);
+                    document.getElementById('result').innerHTML = '<div class="text-red-500">Gagal mengakses kamera: ' + err.message + '</div>';
+                });
+        }
+        
+        function stopAttendanceScanner() {
+            isScanning = false;
+            isProcessing = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+        }
+        
+        // Switch camera function
+        function switchCamera() {
+            const video = document.getElementById('qr-video');
+            
+            // Stop current stream
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+            }
+            isScanning = false;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            
+            // Toggle camera
+            currentFacing = currentFacing === 'environment' ? 'user' : 'environment';
+            
+            navigator.mediaDevices.getUserMedia({ 
+                video: { 
+                    facingMode: { exact: currentFacing },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                } 
+            })
+            .then(stream => {
+                videoStream = stream;
+                video.srcObject = stream;
+                video.play();
+                isScanning = true;
+                scanQRFrame();
+                // Mirror video when using front camera
+                if (currentFacing === 'user') {
+                    video.classList.add('mirror');
+                } else {
+                    video.classList.remove('mirror');
+                }
+                document.getElementById('result').innerHTML = '<div class="text-blue-500 font-bold">✓ Kamera: ' + (currentFacing === 'environment' ? 'Belakang' : 'Depan') + '</div>';
+            })
+            .catch(err => {
+                // Fallback if exact facingMode not supported
+                console.error('Camera switch error:', err);
+                navigator.mediaDevices.getUserMedia({ 
+                    video: { 
+                        facingMode: currentFacing,
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    } 
+                })
+                .then(stream => {
+                    videoStream = stream;
+                    video.srcObject = stream;
+                    video.play();
+                    isScanning = true;
+                    scanQRFrame();
+                    // Mirror video when using front camera
+                    if (currentFacing === 'user') {
+                        video.classList.add('mirror');
+                    } else {
+                        video.classList.remove('mirror');
+                    }
+                    document.getElementById('result').innerHTML = '<div class="text-blue-500 font-bold">✓ Kamera: ' + (currentFacing === 'environment' ? 'Belakang' : 'Depan') + '</div>';
+                })
+                .catch(err2 => {
+                    document.getElementById('result').innerHTML = '<div class="text-red-500">Kamera tidak tersedia: ' + err2.message + '</div>';
+                });
+            });
+        }
+
+        // Scan variables
+        let lastScannedData = null;
+        let lastScanTime = 0;
+        
+        // Canvas for QR scanning (re-use)
+let qrCanvas = null;
+        let qrCtx = null;
+
+        // Generate digital fingerprint
+        function getDigitalFingerprint() {
+            const screen = window.screen;
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const fingerprint = `${screen.width}x${screen.height}-${navigator.userAgent.substring(0, 50)}-${timezone}`;
+            return btoa(fingerprint).substring(0, 64);
+        }
+
+        // Capture snapshot from video
+        function captureSnapshot(video, quality = 0.4) {
+            if (!qrCanvas) {
+                qrCanvas = document.createElement('canvas');
+                qrCtx = qrCanvas.getContext('2d');
+            }
+            qrCanvas.width = video.videoWidth;
+            qrCanvas.height = video.videoHeight;
+            qrCtx.drawImage(video, 0, 0);
+            return qrCanvas.toDataURL('image/jpeg', quality).split(',')[1];
+        }
+
+        // Show scan success visual
+        function showScanSuccess() {
+            const scanBox = document.querySelector('.scan-box');
+            if (scanBox) {
+                scanBox.style.borderColor = '#10b981';
+                scanBox.style.boxShadow = '0 0 20px #10b981';
+                setTimeout(() => {
+                    scanBox.style.borderColor = '#fbbf24';
+                    scanBox.style.boxShadow = 'none';
+                }, 300);
+            }
+        }
+
+        // Optimized scan function - no FPS limit for maximum responsiveness
+        // Use smaller canvas for faster processing
+        const SCAN_WIDTH = 640;
+        
+        function scanQRFrame() {
+            if (!isScanning) return;
+            
+            const now = Date.now();
+            
+            const video = document.getElementById('qr-video');
+            if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+                animationFrameId = requestAnimationFrame(scanQRFrame);
+                return;
+            }
+            
+            // Use smaller canvas for faster QR detection
+            if (!qrCanvas || qrCanvas.width !== SCAN_WIDTH) {
+                qrCanvas = document.createElement('canvas');
+                qrCtx = qrCanvas.getContext('2d');
+                qrCanvas.width = SCAN_WIDTH;
+                qrCanvas.height = SCAN_WIDTH * (video.videoHeight / video.videoWidth);
+            }
+            
+            // Draw scaled down image for faster processing
+            qrCtx.drawImage(video, 0, 0, qrCanvas.width, qrCanvas.height);
+            
+            const imageData = qrCtx.getImageData(0, 0, qrCanvas.width, qrCanvas.height);
+            const code = jsQR(imageData.data, imageData.width, imageData.height);
+            
+            if (code) {
+                const qrData = code.data.trim();
+                
+                // Skip only if isProcessing (server is handling validation)
+                if (isProcessing) {
+                    animationFrameId = requestAnimationFrame(scanQRFrame);
+                    return;
+                }
+                
+                console.log('QR Code detected:', qrData);
+                
+                // Instant feedback - beep and visual
+                playBeep(true);
+                showScanSuccess();
+                
+                processAttendance(qrData, video);
+                return;
+            }
+            
+            animationFrameId = requestAnimationFrame(scanQRFrame);
+        }
+        
+        async function processAttendance(qrData, videoElement) {
+            // Prevent double scan - client side check (not using localStorage to allow multiple users)
+            if (isProcessing) {
+                console.log('Already processing, ignoring duplicate scan');
+                return;
+            }
+
+            try {
+                const scanId = qrData.trim();
+                
+                if (!scanId) {
+                    document.getElementById('result').innerHTML = '<div class="text-red-500">QR Code tidak valid</div>';
+                    return;
+                }
+                
+                isProcessing = true;
+                
+                const deviceId = localStorage.getItem('current_device_id');
+                const tenantId = localStorage.getItem('current_tenant_id');
+                
+                if (!deviceId || !tenantId) {
+                    document.getElementById('result').innerHTML = '<div class="text-red-500">Device belum diverifikasi. Silakan scan device terlebih dahulu.</div>';
+                    window.location.href = '/absensi/input-device.html';
+                    return;
+                }
+                
+                // Store scan time in sessionStorage (per user session, not device)
+                const now = Date.now();
+                sessionStorage.setItem('last_scan_time', now.toString());
+
+                // Capture snapshot for evidence
+                const snapshot = videoElement ? captureSnapshot(videoElement, 0.4) : null;
+                
+                // Get digital fingerprint
+                const fingerprint = getDigitalFingerprint();
+
+                // Check online status and handle accordingly
+                if (!navigator.onLine) {
+                    // OFFLINE MODE - save to pending
+                    document.getElementById('result').innerHTML = '<div class="text-orange-500 font-bold">⚠️ Offline - Absensi disimpan dan akan disinkronkan saat online</div>';
+                    
+                    // Try to find user from cache
+                    const cachedUser = await getCachedUser(scanId);
+                    
+                    // Save pending attendance
+                    await savePendingAttendance({
+                        scan_id: scanId,
+                        tenant_code: tenantId,
+                        device_id: deviceId,
+                        fingerprint: fingerprint,
+                        snapshot: snapshot,
+                        offline_mode: true,
+                        cached_user: cachedUser
+                    });
+                    
+                    if (cachedUser) {
+                        document.getElementById('result').innerHTML += '<div class="text-green-600 font-bold">✓ Absensi Offline: ' + cachedUser.name + ' (' + cachedUser.role + ')</div>';
+                    }
+                    
+                    isProcessing = false;
+                    animationFrameId = requestAnimationFrame(scanQRFrame);
+                    return;
+                }
+
+                // ONLINE MODE - normal API call
+                fetch('/api/standalone-attendance', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        scan_id: scanId,
+                        tenant_code: tenantId,
+                        device_id: deviceId,
+                        fingerprint: fingerprint,
+                        snapshot: snapshot
+                    })
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        const roleLabel = result.role === 'siswa' ? 'Siswa' : 'Guru';
+                        const statusLabel = result.status === 'Pulang' ? 'Pulang' : 'Datang';
+                        document.getElementById('result').innerHTML = '<div class="text-green-600 font-bold">✓ Absensi ' + statusLabel + ' (' + (result.keterangan || 'Normal') + '): ' + result.user + ' (' + roleLabel + ')</div>';
+                        playBeep(true);
+                        
+                        // Show notification
+                        if (result.whatsapp_sent) {
+                            document.getElementById('result').innerHTML += '<div class="text-green-500 text-sm mt-1">📱 Notifikasi WhatsApp terkirim</div>';
+                        }
+                    } else {
+                        document.getElementById('result').innerHTML = '<div class="text-red-500">' + (result.error || 'Gagal absensi') + '</div>';
+                    }
+                    
+                    // Fastscan mode: immediately ready for next scan
+                    isProcessing = false;
+                    animationFrameId = requestAnimationFrame(scanQRFrame);
+                })
+                .catch(err => {
+                    document.getElementById('result').innerHTML = '<div class="text-red-500">Error: ' + err.message + '</div>';
+                    isProcessing = false;
+                    playBeep(false);
+                });
+            } catch (e) {
+                console.error('Process attendance error:', e);
+                isProcessing = false;
+                document.getElementById('result').innerHTML = '<div class="text-red-500">Error: ' + e.message + '</div>';
+            }
+        }
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(reg => console.log('SW registered:', reg.scope))
+                .catch(err => console.log('SW registration failed:', err));
+        }
+
+        // IndexedDB for offline data
+        const DB_NAME = 'YPWI-Offline';
+        const DB_VERSION = 1;
+
+        let db;
+        function initDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => { db = request.result; resolve(db); };
+                request.onupgradeneeded = event => {
+                    const d = event.target.result;
+                    if (!d.objectStoreNames.contains('users_cache')) {
+                        d.createObjectStore('users_cache', { keyPath: 'scan_id' });
+                    }
+                    if (!d.objectStoreNames.contains('pending_attendance')) {
+                        d.createObjectStore('pending_attendance', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+            });
+        }
+
+        async function cacheUserData(scanId, userData) {
+            await initDB();
+            const tx = db.transaction('users_cache', 'readwrite');
+            tx.objectStore('users_cache').put({
+                scan_id: scanId,
+                ...userData,
+                cached_at: Date.now()
+            });
+        }
+
+        async function getCachedUser(scanId) {
+            await initDB();
+            const tx = db.transaction('users_cache', 'readonly');
+            return new Promise(resolve => {
+                const request = tx.objectStore('users_cache').get(scanId);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => resolve(null);
+            });
+        }
+
+        async function savePendingAttendance(data) {
+            await initDB();
+            const tx = db.transaction('pending_attendance', 'readwrite');
+            tx.objectStore('pending_attendance').add({
+                data: data,
+                timestamp: Date.now()
+            });
+        }
+
+        async function syncPendingAttendance() {
+            await initDB();
+            const tx = db.transaction('pending_attendance', 'readonly');
+            const store = tx.objectStore('pending_attendance');
+            const request = store.getAll();
+            
+            request.onsuccess = async () => {
+                const pending = request.result;
+                for (const record of pending) {
+                    try {
+                        const response = await fetch('/api/standalone-attendance', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(record.data)
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            const tx2 = db.transaction('pending_attendance', 'readwrite');
+                            tx2.objectStore('pending_attendance').delete(record.id);
+                        }
+                    } catch (e) {
+                        console.log('Sync failed for record:', record.id);
+                    }
+                }
+            };
+        }
+
+        // Sync on online
+        window.addEventListener('online', () => {
+            console.log('Online - syncing pending data...');
+            syncPendingAttendance();
+        });
+
+        // Sync cached users from server on load
+        async function syncUserCache() {
+            try {
+                const response = await fetch('/api/students');
+                const students = await response.json();
+                await initDB();
+                const tx = db.transaction('users_cache', 'readwrite');
+                const store = tx.objectStore('users_cache');
+                students.forEach(s => store.put({ 
+                    scan_id: s.scan_id, 
+                    name: s.nama_siswa, 
+                    role: 'siswa', 
+                    tenant_id: s.tenant_id,
+                    cached_at: Date.now() 
+                }));
+
+                const response2 = await fetch('/api/teachers');
+                const teachers = await response2.json();
+                teachers.forEach(t => store.put({ 
+                    scan_id: t.scan_id, 
+                    name: t.nama, 
+                    role: 'guru', 
+                    tenant_id: t.tenant_id,
+                    cached_at: Date.now() 
+                }));
+                
+                console.log('User cache synced');
+            } catch (e) {
+                console.log('Cache sync failed:', e.message);
+            }
+        }
+
+        // Initial cache sync
+        if (navigator.onLine) {
+            syncUserCache();
+        }
+
+        // Sound effects
+        function playBeep(success = true) {
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            if (success) {
+                oscillator.frequency.value = 1200;
+                gainNode.gain.setValueAtTime(0.5, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            } else {
+                oscillator.frequency.value = 300;
+                gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+            }
+            
+            oscillator.start(audioCtx.currentTime);
+            oscillator.stop(audioCtx.currentTime + 0.15);
+        }
+    </script>
+</body>
+</html>

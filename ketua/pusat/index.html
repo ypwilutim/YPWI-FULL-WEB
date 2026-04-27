@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ketua Pusat - YPWI Luwu Timur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+</head>
+<body class="bg-gray-100">
+    <div class="min-h-screen flex">
+        <!-- Sidebar -->
+        <div class="w-64 bg-purple-800 text-white">
+            <div class="p-6">
+                <h2 class="text-2xl font-bold">Ketua Pusat</h2>
+                <p class="text-purple-200">Dashboard Ketua Yayasan</p>
+            </div>
+            <nav class="mt-6">
+                <a href="#" class="block px-6 py-3 hover:bg-purple-700">
+                    <i class="bi bi-house-door mr-2"></i>Dashboard
+                </a>
+                <a href="#" class="block px-6 py-3 hover:bg-purple-700">
+                    <i class="bi bi-building mr-2"></i>Kelola Sekolah
+                </a>
+                <a href="#" class="block px-6 py-3 hover:bg-purple-700">
+                    <i class="bi bi-people mr-2"></i>Manajemen SDM
+                </a>
+                <a href="#" class="block px-6 py-3 hover:bg-purple-700">
+                    <i class="bi bi-graph-up mr-2"></i>Laporan Strategis
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1">
+            <header class="bg-white shadow-sm px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <h1 class="text-2xl font-bold text-gray-900">Dashboard Ketua Pusat</h1>
+                    <div class="flex items-center space-x-4">
+                        <span id="user-info" class="text-gray-600"></span>
+                        <button onclick="logout()" class="text-red-600 hover:text-red-800">
+                            <i class="bi bi-box-arrow-right mr-1"></i>Logout
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="p-6">
+                <div class="bg-white p-6 rounded-lg shadow-sm mb-6">
+                    <h3 class="text-lg font-bold mb-4">Selamat Datang, Ketua Pusat</h3>
+                    <p class="text-gray-600">
+                        Sebagai Ketua Yayasan Pusat YPWI Luwu Timur, Anda memiliki akses penuh untuk
+                        mengelola seluruh ekosistem pendidikan yayasan. Gunakan dashboard ini untuk
+                        monitoring dan pengambilan keputusan strategis.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-100 rounded-full">
+                                <i class="bi bi-trophy text-purple-600 text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-gray-600">Prestasi</p>
+                                <p class="text-2xl font-bold">95%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <i class="bi bi-graph-up text-blue-600 text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-gray-600">Pertumbuhan</p>
+                                <p class="text-2xl font-bold">+12%</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <i class="bi bi-heart text-green-600 text-2xl"></i>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-gray-600">Kepuasan</p>
+                                <p class="text-2xl font-bold">88%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Load user info
+        document.addEventListener('DOMContentLoaded', function() {
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const role = localStorage.getItem('role') || 'Unknown';
+
+            document.getElementById('user-info').textContent = `${user.nama || 'User'} (${role})`;
+        });
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>

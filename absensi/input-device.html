@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifikasi Device - Absensi YPWI</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1f8a4a',
+                        secondary: '#93d5f4',
+                        accent: '#eae830',
+                        'soft-bg': '#f8fdff',
+                        success: '#10b981',
+                        danger: '#ef4444',
+                        warning: '#f59e0b',
+                        info: '#3b82f6'
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- QR Scanner - Using jsQR library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+      <script>
+          // QR Scanner loaded via script tag in head
+          let verifiedDevice = null;
+          // qrScannerInstance declared later
+
+        // Show message
+        function showMessage(type, message, icon = null, title = null) {
+            const messageDiv = document.getElementById('status-message');
+            if (!messageDiv) return;
+
+            messageDiv.classList.remove('hidden');
+
+            // Set styling based on type
+            const styles = {
+                success: 'bg-success/10 border border-success/20',
+                danger: 'bg-danger/10 border border-danger/20',
+                warning: 'bg-warning/10 border border-warning/20',
+                info: 'bg-info/10 border border-info/20'
+            };
+
+            const icons = {
+                success: 'bi-check-circle-fill text-success',
+                danger: 'bi-x-circle-fill text-danger',
+                warning: 'bi-exclamation-triangle-fill text-warning',
+                info: 'bi-info-circle-fill text-info'
+            };
+
+            messageDiv.className = 'mt-6';
+            messageDiv.querySelector('.rounded-xl')?.remove();
+            const contentDiv = document.createElement('div');
+            contentDiv.className = `rounded-xl p-4 ${styles[type] || styles.info}`;
+            contentDiv.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <div class="${icons[type] || icons.info} text-2xl"></div>
+                    <div class="flex-1">
+                        <h4 class="font-bold mb-1">${title || (type === 'success' ? 'Berhasil!' : type === 'danger' ? 'Gagal!' : 'Pemberitahuan')}</h4>
+                        <p class="text-sm whitespace-pre-line">${message}</p>
+                    </div>
+                </div>
+            `;
+            messageDiv.appendChild(contentDiv);
+        }
+
+        // QR Scanner variables
+        let qrScannerInstance = null;
+        let videoStream = null;
+        let isScanning = false;
+        let animationFrameId = null;
+
+        // Start QR Scanner using jsQR
+        async function startQRScanner() {
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            if (window.location.protocol === 'http:' && !isLocalhost) {
+                showMessage('danger', 'Kamera memerlukan HTTPS!\n\nUntuk mengakses kamera, Anda perlu:\n1. Menggunakan HTTPS, ATAU\n2. Mengakses via http://localhost');
+                return;
+            }
+
+            console.log('Starting QR Scanner with jsQR...');
+
+            const modal = document.getElementById('qr-scanner-modal');
+            const video = document.getElementById('qr-video');
+            const status = document.getElementById('qr-status');
+            const overlay = document.getElementById('qr-overlay');
+
+            if (!modal || !video || !status || !overlay) {
+                console.error('QR scanner elements missing');
+                showMessage('danger', 'Elemen scanner tidak ditemukan.');
+                return;
+            }
+
+            modal.classList.remove('hidden');
+            status.textContent = '📷 Meminta izin kamera...';
+            overlay.style.display = 'flex';
+
+            video.style.display = 'block';
+            video.style.border = '3px solid #10b981';
+            video.style.width = '100%';
+            video.style.height = 'auto';
+            video.style.maxWidth = '400px';
+            video.style.borderRadius = '10px';
+
+            try {
+                if (videoStream) {
+                    videoStream.getTracks().forEach(track => track.stop());
+                }
+
+                videoStream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: "environment",
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                });
+
+                video.srcObject = videoStream;
+                video.setAttribute('playsinline', 'true');
+                video.setAttribute('autoplay', 'true');
+
+                await video.play();
+
+                isScanning = true;
+                status.textContent = '📷 Kamera aktif - Arahkan ke QR code device';
+
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d', { willReadFrequently: true });
+
+                function scanFrame() {
+                    if (!isScanning || video.readyState !== video.HAVE_ENOUGH_DATA) {
+                        animationFrameId = requestAnimationFrame(scanFrame);
+                        return;
+                    }
+
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: 'dontInvert'
+                    });
+
+                    if (code) {
+                        console.log('✅ QR Code detected!', code.data);
+
+                        const deviceId = code.data;
+                        document.getElementById('device-id-input').value = deviceId;
+
+                        stopScanner();
+                        modal.classList.add('hidden');
+                        status.textContent = '';
+
+                        showMessage('success', `Device ID berhasil discan: ${deviceId}. Sedang memverifikasi...`);
+
+                        // Auto submit form after scan
+                        setTimeout(() => {
+                            verifyDeviceAndRedirect(deviceId);
+                        }, 500);
+                        return;
+                    }
+
+                    animationFrameId = requestAnimationFrame(scanFrame);
+                }
+
+                scanFrame();
+
+            } catch (error) {
+                console.error('❌ QR Scanner error:', error);
+
+                if (error.name === 'NotAllowedError') {
+                    showMessage('danger', 'Izin kamera ditolak! Silakan izinkan akses kamera di pengaturan browser.');
+                } else if (error.name === 'NotFoundError') {
+                    showMessage('danger', 'Kamera tidak ditemukan! Pastikan device memiliki kamera.');
+                } else if (error.name === 'NotReadableError') {
+                    showMessage('danger', 'Kamera sedang digunakan oleh aplikasi lain.');
+                } else {
+                    showMessage('danger', 'Gagal mengakses kamera: ' + error.message);
+                }
+            }
+        }
+
+        function stopScanner() {
+            isScanning = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+            if (videoStream) {
+                videoStream.getTracks().forEach(track => track.stop());
+                videoStream = null;
+            }
+        }
+
+        // Verify device and redirect (called after auto-scan)
+        async function verifyDeviceAndRedirect(deviceId) {
+            try {
+                const response = await fetch('/api/verify-device', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ device_id: deviceId })
+                });
+
+                const result = await response.json();
+
+                if (result.verified) {
+                    localStorage.setItem('current_device_id', deviceId);
+                    localStorage.setItem('current_device_name', result.device.device_name);
+                    localStorage.setItem('current_device_location', result.device.device_location);
+                    localStorage.setItem('current_tenant_id', result.device.tenant_id);
+
+                    console.log('✅ Device verified, redirecting to absensi page...');
+                    showMessage('success', 'Device terverifikasi! Mengalihkan ke halaman absensi...');
+                    setTimeout(() => {
+                        window.location.href = '/absensi/absensi.html';
+                    }, 1000);
+                } else {
+                    let errorMsg = result.message || 'Device tidak dapat diverifikasi';
+                    if (result.in_use) {
+                        errorMsg = result.message || 'Device sedang digunakan oleh sesi absensi lain.';
+                    }
+                    showMessage('danger', errorMsg);
+                }
+            } catch (error) {
+                console.error('Error verifying device:', error);
+                showMessage('danger', 'Terjadi kesalahan koneksi. Coba lagi nanti.');
+            }
+        }
+
+        // Close QR modal
+        function closeQRModal() {
+            const modal = document.getElementById('qr-scanner-modal');
+            if (!modal) return;
+
+            modal.classList.add('hidden');
+            stopScanner();
+        }
+
+        // Event Listeners - with null checks
+        document.addEventListener('DOMContentLoaded', function() {
+            const scanQrBtn = document.getElementById('scan-qr-btn');
+            const closeQrModalBtn = document.getElementById('close-qr-modal');
+            const verifyDeviceForm = document.getElementById('verify-device-form');
+            const deviceIdInput = document.getElementById('device-id-input');
+
+            console.log('scanQrBtn:', scanQrBtn);
+            console.log('closeQrModalBtn:', closeQrModalBtn);
+
+            if (scanQrBtn) {
+                scanQrBtn.addEventListener('click', () => {
+                    console.log('Scan button clicked');
+                    startQRScanner();
+                });
+            } else {
+                console.error('scan-qr-btn not found');
+            }
+
+            if (closeQrModalBtn) {
+                closeQrModalBtn.addEventListener('click', closeQRModal);
+            }
+
+            if (verifyDeviceForm && deviceIdInput) {
+                verifyDeviceForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const deviceId = deviceIdInput.value.trim();
+
+                    if (!deviceId) {
+                        showMessage('warning', 'Device ID harus diisi');
+                        return;
+                    }
+
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="bi bi-hourglass-split spinning"></i> Memverifikasi...';
+
+                    try {
+                        const response = await fetch('/api/verify-device', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ device_id: deviceId })
+                        });
+
+                        const result = await response.json();
+
+                        if (result.verified) {
+                            localStorage.setItem('current_device_id', deviceId);
+                            localStorage.setItem('current_device_name', result.device.device_name);
+                            localStorage.setItem('current_device_location', result.device.device_location);
+                            localStorage.setItem('current_tenant_id', result.device.tenant_id);
+
+                            console.log('✅ Device verified, redirecting to absensi page...');
+                            showMessage('success', 'Device terverifikasi! Mengalihkan ke halaman absensi...');
+
+                            setTimeout(() => {
+                                window.location.href = '/absensi/absensi.html';
+                            }, 2000);
+                        } else {
+                            console.log('❌ Device verification failed');
+                            if (result.in_use) {
+                                showMessage('warning', result.message || 'Device sedang digunakan');
+                            } else {
+                                showMessage('error', result.message || 'Verifikasi device gagal');
+                            }
+                        }
+
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verifikasi & Masuk';
+                    } catch (error) {
+                        console.error('💥 Fetch error:', error);
+                        showMessage('error', 'Terjadi kesalahan jaringan. Silakan coba lagi.');
+
+                        // Re-enable submit button
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Verifikasi & Masuk';
+                    }
+                });
+            }
+
+            // Auto-fill from URL parameter ?device_id=XXX
+            const urlParams = new URLSearchParams(window.location.search);
+            const deviceIdParam = urlParams.get('device_id');
+            if (deviceIdParam && deviceIdInput) {
+                deviceIdInput.value = deviceIdParam;
+            }
+
+            // Focus input on load
+            window.onload = function() {
+                if (deviceIdInput) {
+                    deviceIdInput.focus();
+                }
+            };
+        }); // end DOMContentLoaded
+    </script>
+</head>
+<body class="bg-soft-bg min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-green-600 to-blue-600 text-white py-4 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <i class="bi bi-qr-code-scan text-2xl"></i>
+                    <div>
+                        <h1 class="text-xl font-bold">Verifikasi Device Absensi</h1>
+                        <p class="text-sm opacity-90">Masukkan Device ID untuk mengakses sistem</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-md mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h2 class="text-xl font-bold text-primary mb-6 flex items-center gap-3">
+                    <i class="bi bi-device-hdd text-2xl"></i>
+                    Verifikasi Device
+                </h2>
+
+                <form id="verify-device-form">
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">
+                            <i class="bi bi-tag me-2 text-primary"></i>Device ID
+                        </label>
+                        <input type="text" id="device-id-input" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition" placeholder="Masukkan atau scan Device ID">
+                    </div>
+
+                    <button type="button" id="scan-qr-btn" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-semibold transition mb-3">
+                        <i class="bi bi-qr-code-scan me-2"></i>Scan QR Code Device
+                    </button>
+
+                    <button type="submit" class="w-full py-3 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold transition shadow-lg">
+                        <i class="bi bi-check-circle me-2"></i>Verifikasi & Masuk
+                    </button>
+                </form>
+
+                <div id="status-message" class="mt-4"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- QR Scanner Modal -->
+    <div id="qr-scanner-modal" class="fixed inset-0 bg-black/80 hidden z-50 flex items-center justify-center">
+        <div class="relative w-full max-w-md mx-4">
+            <div class="bg-white rounded-2xl p-4">
+                <div class="relative">
+                    <video id="qr-video" class="w-full rounded-lg"></video>
+                    <div id="qr-overlay" class="absolute inset-0 flex items-center justify-center">
+                        <div class="bg-black/50 rounded-lg p-2">
+                            <p id="qr-status" class="text-white text-center text-sm"></p>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" id="close-qr-modal" class="mt-4 w-full py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-xl transition">
+                    <i class="bi bi-x-circle me-2"></i>Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

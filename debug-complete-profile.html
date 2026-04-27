@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Complete Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Debug Complete Profile Page</h1>
+
+    <div class="debug-section info">
+        <h3>1. Current URL Parameters</h3>
+        <div id="url-params">Loading...</div>
+    </div>
+
+    <div class="debug-section info">
+        <h3>2. Teacher ID from URL</h3>
+        <div id="teacher-id">Loading...</div>
+    </div>
+
+    <div class="debug-section info">
+        <h3>3. API Response</h3>
+        <div id="api-response">Loading...</div>
+    </div>
+
+    <div class="debug-section data">
+        <h3>4. Full API Data</h3>
+        <pre id="api-data">Loading...</pre>
+    </div>
+
+    <div class="debug-section info">
+        <h3>5. Form Population Test</h3>
+        <div id="form-test">Loading...</div>
+    </div>
+
+    <script>
+        // Function to simulate initializeFormData
+        function initializeFormData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const teacherId = urlParams.get('teacherId');
+            return teacherId;
+        }
+
+        // Test URL parameters
+        document.getElementById('url-params').innerHTML = `
+            <strong>Full URL:</strong> ${window.location.href}<br>
+            <strong>Search Params:</strong> ${window.location.search}<br>
+            <strong>Hash:</strong> ${window.location.hash}
+        `;
+
+        // Test teacher ID extraction
+        const teacherId = initializeFormData();
+        document.getElementById('teacher-id').innerHTML = `
+            <strong>Extracted Teacher ID:</strong> ${teacherId || 'NULL'}<br>
+            <strong>Type:</strong> ${typeof teacherId}
+        `;
+
+        if (teacherId) {
+            // Test API call
+            fetch('/api/teacher-data/' + teacherId)
+                .then(response => {
+                    document.getElementById('api-response').innerHTML = `
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>OK:</strong> ${response.ok}<br>
+                        <strong>Content-Type:</strong> ${response.headers.get('content-type')}
+                    `;
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('api-data').textContent = JSON.stringify(data, null, 2);
+
+                    if (data.error) {
+                        document.getElementById('form-test').innerHTML = `
+                            <div class="error">
+                                <strong>API Error:</strong> ${data.error}
+                            </div>
+                        `;
+                    } else {
+                        // Test form population
+                        let formTest = '<div class="success"><strong>Form Population Test:</strong></div><ul>';
+                        const testFields = ['nama', 'niy', 'nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'no_wa', 'email', 'jabatan', 'sebagai', 'status_aktif'];
+
+                        testFields.forEach(field => {
+                            const value = data[field];
+                            const hasValue = value !== null && value !== undefined && value.toString().trim() !== '';
+                            formTest += `<li><strong>${field}:</strong> ${hasValue ? '✅ ' + value : '❌ Empty'}</li>`;
+                        });
+
+                        formTest += '</ul>';
+                        document.getElementById('form-test').innerHTML = formTest;
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('api-response').innerHTML = `
+                        <div class="error">
+                            <strong>Network Error:</strong> ${error.message}
+                        </div>
+                    `;
+                    document.getElementById('api-data').textContent = 'Error: ' + error.message;
+                    document.getElementById('form-test').innerHTML = `
+                        <div class="error">
+                            <strong>Form Test Failed:</strong> Cannot fetch data
+                        </div>
+                    `;
+                });
+        } else {
+            document.getElementById('api-response').innerHTML = `
+                <div class="error">
+                    <strong>No Teacher ID:</strong> Cannot proceed without teacherId parameter
+                </div>
+            `;
+            document.getElementById('api-data').textContent = 'No teacher ID found';
+            document.getElementById('form-test').innerHTML = `
+                <div class="error">
+                    <strong>Form Test Skipped:</strong> No teacher ID
+                </div>
+            `;
+        }
+
+        console.log('Debug page loaded');
+        console.log('Teacher ID:', teacherId);
+    </script>
+</body>
+</html>

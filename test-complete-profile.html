@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Complete Profile</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+    </style>
+</head>
+<body>
+    <h1>Testing Complete Profile Page</h1>
+
+    <div class="test-section info">
+        <h3>1. Testing API Connection</h3>
+        <div id="api-test">Testing...</div>
+    </div>
+
+    <div class="test-section info">
+        <h3>2. Testing Teacher Data Fetch</h3>
+        <div id="teacher-test">Testing...</div>
+    </div>
+
+    <div class="test-section info">
+        <h3>3. Browser Console Logs</h3>
+        <p>Open browser developer console (F12) to see detailed logs</p>
+    </div>
+
+    <script>
+        // Test 1: API connection
+        fetch('/api/test-db')
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('api-test').innerHTML = `
+                    <div class="success">
+                        <strong>✅ API Connected</strong><br>
+                        Database: ${data.message}<br>
+                        Teachers Count: ${data.teachers_count || 'N/A'}
+                    </div>
+                `;
+            })
+            .catch(err => {
+                document.getElementById('api-test').innerHTML = `
+                    <div class="error">
+                        <strong>❌ API Error</strong><br>
+                        ${err.message}
+                    </div>
+                `;
+            });
+
+        // Test 2: Teacher data fetch
+        fetch('/api/teacher-data/995')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('teacher-test').innerHTML = `
+                        <div class="error">
+                            <strong>❌ Teacher Data Error</strong><br>
+                            ${data.error}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('teacher-test').innerHTML = `
+                        <div class="success">
+                            <strong>✅ Teacher Data Loaded</strong><br>
+                            Name: ${data.nama || 'N/A'}<br>
+                            NIY: ${data.niy || 'N/A'}<br>
+                            Email: ${data.email || 'N/A'}<br>
+                            Status: ${data.status_aktif || 'N/A'}
+                        </div>
+                    `;
+                }
+            })
+            .catch(err => {
+                document.getElementById('teacher-test').innerHTML = `
+                    <div class="error">
+                        <strong>❌ Teacher Data Fetch Error</strong><br>
+                        ${err.message}
+                    </div>
+                `;
+            });
+
+        // Add some console logs
+        console.log('Test page loaded');
+        console.log('Current URL:', window.location.href);
+    </script>
+</body>
+</html>

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pilih Jabatan - YPWI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6">
+    <div class="max-w-2xl w-full">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <img src="assets/images/YPWI LOGO HITAM.png" alt="YPWI" height="50" class="mx-auto mb-4">
+            <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Pilih Jabatan</h1>
+            <p class="text-gray-600">Pilih jabatan yang ingin Anda gunakan di unit ini</p>
+        </div>
+
+        <!-- Unit Info -->
+        <div class="bg-white rounded-2xl p-6 shadow-lg mb-6">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    <i class="bi bi-building"></i>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-800" id="unitName">Unit Sekolah</h3>
+                    <p class="text-gray-600 text-sm" id="unitCode">Kode Unit</p>
+                </div>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-4">
+                <p class="text-blue-800 text-sm">
+                    <i class="bi bi-info-circle me-2"></i>
+                    Anda memiliki beberapa jabatan di unit ini. Pilih jabatan yang sesuai dengan tugas Anda saat ini.
+                </p>
+            </div>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h3 class="font-bold text-xl mb-6 text-gray-800">Pilih Jabatan Anda</h3>
+            <div id="roleGrid" class="grid gap-4">
+                <!-- Roles will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="text-center mt-6">
+            <button onclick="goBack()" class="text-primary hover:text-primary/80 font-semibold">
+                <i class="bi bi-arrow-left me-2"></i>Kembali ke Pemilihan Unit
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        // Get unit from URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const unitCode = urlParams.get('unit') || localStorage.getItem('selectedUnit');
+        const unitName = localStorage.getItem('selectedUnitName') || unitCode;
+
+        // Decode token
+        const payload = JSON.parse(atob(token.split('.')[1]));
+
+        // Display unit info
+        document.getElementById('unitName').textContent = unitName;
+        document.getElementById('unitCode').textContent = `Kode: ${unitCode}`;
+
+        async function loadRoles() {
+            try {
+                // Get teacher data
+                const teacherId = payload.id;
+                const response = await fetch(`/api/teacher-data/${teacherId}`);
+                const teacherData = await response.json();
+
+                // Parse jabatan
+                const jabatanString = teacherData.jabatan || '';
+                const jabatanArray = jabatanString.split(',').map(j => j.trim().toLowerCase());
+
+                // Define role mappings with display info
+                const roleMappings = {
+                    'walikelas': {
+                        role: 'Guru',
+                        title: 'Wali Kelas',
+                        icon: 'bi-person-badge',
+                        description: 'Mengelola kelas dan siswa'
+                    },
+                    'mapel': {
+                        role: 'Guru',
+                        title: 'Guru Mapel',
+                        icon: 'bi-book',
+                        description: 'Mengajar mata pelajaran'
+                    },
+                    'mengaji': {
+                        role: 'Guru',
+                        title: 'Guru Mengaji',
+                        icon: 'bi-moon-stars',
+                        description: 'Mengajar Al-Qur\'an'
+                    },
+                    'guru': {
+                        role: 'Guru',
+                        title: 'Guru',
+                        icon: 'bi-mortarboard',
+                        description: 'Tenaga pengajar'
+                    },
+                    'bendahara': {
+                        role: 'BendaharaSekolah',
+                        title: 'Bendahara',
+                        icon: 'bi-cash-stack',
+                        description: 'Pengelola keuangan'
+                    },
+                    'admin': {
+                        role: 'AdminSekolah',
+                        title: 'Administrator',
+                        icon: 'bi-gear',
+                        description: 'Administrator sistem'
+                    },
+                    'tu': {
+                        role: 'AdminSekolah',
+                        title: 'Tata Usaha',
+                        icon: 'bi-clipboard-data',
+                        description: 'Tata usaha sekolah'
+                    },
+                    'operator': {
+                        role: 'AdminSekolah',
+                        title: 'Operator',
+                        icon: 'bi-pc-display',
+                        description: 'Operator sistem'
+                    },
+                    'kepala sekolah': {
+                        role: 'KepalaSekolah',
+                        title: 'Kepala Sekolah',
+                        icon: 'bi-person-gear',
+                        description: 'Pimpinan sekolah'
+                    },
+                    'ketua': {
+                        role: 'KetuaYayasan',
+                        title: 'Ketua Yayasan',
+                        icon: 'bi-star',
+                        description: 'Ketua yayasan'
+                    }
+                };
+
+                // Get unique roles
+                const roles = [...new Set(jabatanArray.map(j => roleMappings[j]).filter(Boolean))];
+
+                if (roles.length === 0) {
+                    document.getElementById('roleGrid').innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="bi bi-exclamation-triangle text-4xl mb-4"></i>
+                            <p>Tidak ada jabatan yang ditemukan</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const roleGrid = document.getElementById('roleGrid');
+                roleGrid.innerHTML = roles.map(roleInfo => `
+                    <div class="border border-gray-200 rounded-xl p-4 hover:border-primary hover:shadow-md transition cursor-pointer"
+                         onclick="selectRole('${roleInfo.role}', '${roleInfo.title}')">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <i class="bi ${roleInfo.icon} text-primary text-xl"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800">${roleInfo.title}</h4>
+                                <p class="text-gray-600 text-sm">${roleInfo.description}</p>
+                            </div>
+                            <div class="text-primary">
+                                <i class="bi bi-chevron-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading roles:', error);
+                document.getElementById('roleGrid').innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="bi bi-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Error loading roles</p>
+                    </div>
+                `;
+            }
+        }
+
+        function selectRole(role, roleTitle) {
+            // Store selected role for this unit
+            localStorage.setItem('selectedRole', role);
+            localStorage.setItem('selectedRoleTitle', roleTitle);
+            localStorage.setItem('tenant', unitCode);
+
+            // Redirect to appropriate dashboard
+            switch(role) {
+                case 'AdminYayasan':
+                case 'AdminSekolah':
+                    window.location.href = 'admin/pusat/dashboard.html';
+                    break;
+                case 'BendaharaYayasan':
+                case 'BendaharaSekolah':
+                    window.location.href = 'bendahara/pusat/index.html';
+                    break;
+                case 'KetuaYayasan':
+                case 'KepalaSekolah':
+                    window.location.href = 'kepala-sekolah/index.html';
+                    break;
+                case 'Guru':
+                default:
+                    window.location.href = 'guru/index.html';
+                    break;
+            }
+        }
+
+        function goBack() {
+            window.location.href = 'select-unit.html';
+        }
+
+        // Initialize
+        loadRoles();
+    </script>
+</body>
+</html>

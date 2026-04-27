@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test PNG Loading</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        img { max-width: 200px; max-height: 200px; border: 1px solid #ccc; margin: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Test PNG File Loading</h1>
+
+    <div class="test-section success">
+        <h3>PNG File Test</h3>
+        <p>Testing PNG file loading from uploads folder</p>
+        <img id="testImage" src="/uploads/FOTO_MUH_FADLI.png?t=1234567890" alt="Test PNG" onload="onImageLoad()" onerror="onImageError()">
+        <div id="status">Loading...</div>
+    </div>
+
+    <div class="test-section success">
+        <h3>API Test</h3>
+        <div id="apiTest">Testing API...</div>
+    </div>
+
+    <script>
+        function onImageLoad() {
+            document.getElementById('status').innerHTML = '<span style="color: green;">✅ PNG image loaded successfully!</span>';
+            console.log('PNG image loaded successfully');
+        }
+
+        function onImageError() {
+            document.getElementById('status').innerHTML = '<span style="color: red;">❌ Failed to load PNG image</span>';
+            console.error('Failed to load PNG image');
+        }
+
+        // Test API
+        fetch('/api/teacher-data/995')
+            .then(response => response.json())
+            .then(data => {
+                if (data.link_foto) {
+                    document.getElementById('apiTest').innerHTML = `
+                        <strong>✅ API Success</strong><br>
+                        Photo path: ${data.link_foto}<br>
+                        Full URL: /${data.link_foto}
+                    `;
+                } else {
+                    document.getElementById('apiTest').innerHTML = `
+                        <strong>⚠️ API Success but no photo</strong><br>
+                        link_foto field is empty
+                    `;
+                }
+            })
+            .catch(error => {
+                document.getElementById('apiTest').innerHTML = `
+                    <strong>❌ API Error:</strong> ${error.message}
+                `;
+            });
+
+        console.log('Test page loaded');
+        console.log('Image src:', document.getElementById('testImage').src);
+    </script>
+</body>
+</html>

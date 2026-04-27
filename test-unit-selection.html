@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Unit Selection</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 200px; }
+    </style>
+</head>
+<body>
+    <h1>Test Unit Sekolah Selection</h1>
+
+    <div class="test-section info">
+        <h3>1. Form Field Status</h3>
+        <div id="form-status">Loading...</div>
+    </div>
+
+    <div class="test-section info">
+        <h3>2. Selected Units Array</h3>
+        <div id="units-array">No units selected</div>
+    </div>
+
+    <div class="test-section data">
+        <h3>3. Tenant ID Field Value</h3>
+        <div id="tenant-id-value">Empty</div>
+    </div>
+
+    <div class="test-section success">
+        <h3>4. Test Actions</h3>
+        <button onclick="simulateUnitSelection()">Simulate Unit Selection</button>
+        <button onclick="checkFormValidation()">Check Form Validation</button>
+        <button onclick="clearSelection()">Clear Selection</button>
+    </div>
+
+    <div class="test-section data">
+        <h3>5. Debug Console</h3>
+        <pre id="debug-console">Ready...</pre>
+    </div>
+
+    <script>
+        let selectedUnits = [];
+        let debugMessages = [];
+
+        function log(message) {
+            debugMessages.push(`[${new Date().toLocaleTimeString()}] ${message}`);
+            document.getElementById('debug-console').textContent = debugMessages.slice(-10).join('\n');
+        }
+
+        function updateDisplay() {
+            // Update form status
+            const tenantIdField = document.getElementById('tenant_id') || { value: '' };
+            const hasValue = tenantIdField.value && tenantIdField.value.trim() !== '';
+
+            document.getElementById('form-status').innerHTML = `
+                <strong>Tenant ID Field:</strong> ${hasValue ? '✅ Has Value' : '❌ Empty'}<br>
+                <strong>Value:</strong> "${tenantIdField.value}"<br>
+                <strong>Will Validate:</strong> ${hasValue ? '✅ Yes' : '❌ No (required field empty)'}
+            `;
+
+            // Update units array display
+            document.getElementById('units-array').innerHTML = `
+                <strong>Array Length:</strong> ${selectedUnits.length}<br>
+                <strong>Units:</strong> ${selectedUnits.length > 0 ?
+                    selectedUnits.map(u => `${u.name} (${u.code})`).join(', ') :
+                    'None'}
+            `;
+
+            // Update tenant ID value
+            document.getElementById('tenant-id-value').innerHTML = `
+                <strong>Current Value:</strong> "${tenantIdField.value}"<br>
+                <strong>From Array:</strong> ${selectedUnits.length > 0 ? selectedUnits[0].code : 'N/A'}
+            `;
+
+            log('Display updated');
+        }
+
+        function simulateUnitSelection() {
+            // Simulate selecting a unit
+            const mockUnit = {
+                code: 'TKITWI01',
+                name: 'TKIT WAHDAH ISLAMIYAH 01 TOMONI'
+            };
+
+            selectedUnits = [mockUnit];
+
+            // Simulate updateTenantIdField
+            const tenantIdField = document.getElementById('tenant_id');
+            if (tenantIdField) {
+                tenantIdField.value = mockUnit.code;
+            }
+
+            log(`Simulated unit selection: ${mockUnit.name} (${mockUnit.code})`);
+            updateDisplay();
+        }
+
+        function checkFormValidation() {
+            const tenantIdField = document.getElementById('tenant_id');
+            const isValid = tenantIdField && tenantIdField.value && tenantIdField.value.trim() !== '';
+
+            log(`Form validation check: ${isValid ? 'PASS' : 'FAIL'} - Value: "${tenantIdField ? tenantIdField.value : 'N/A'}"`);
+
+            if (isValid) {
+                alert('✅ Form validation PASSED - Unit sekolah terdeteksi!');
+            } else {
+                alert('❌ Form validation FAILED - Unit sekolah tidak terdeteksi!');
+            }
+
+            updateDisplay();
+        }
+
+        function clearSelection() {
+            selectedUnits = [];
+            const tenantIdField = document.getElementById('tenant_id');
+            if (tenantIdField) {
+                tenantIdField.value = '';
+            }
+
+            log('Selection cleared');
+            updateDisplay();
+        }
+
+        // Create mock tenant_id field for testing
+        document.addEventListener('DOMContentLoaded', function() {
+            // Create hidden input for testing
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.id = 'tenant_id';
+            input.name = 'tenant_id';
+            document.body.appendChild(input);
+
+            log('Test page initialized');
+            updateDisplay();
+        });
+    </script>
+</body>
+</html>

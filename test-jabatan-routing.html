@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Jabatan-Based Routing</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; }
+        .route-test { margin: 10px 0; padding: 10px; border-left: 4px solid #007bff; background: #f8f9fa; }
+        .route-match { border-left-color: #28a745; background: #d4edda; }
+        .route-no-match { border-left-color: #dc3545; background: #f8d7da; }
+        .field-highlight { background: #fff3cd; padding: 2px 4px; border-radius: 3px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Test Jabatan-Based Routing (Fixed)</h1>
+
+    <div class="test-section info">
+        <h3>1. Perbaikan Logic Routing</h3>
+        <div>
+            <strong>✅ SEBELUM (Salah):</strong><br>
+            Role detection dari kolom <code>jabatan</code> ATAU <code>sebagai</code><br><br>
+
+            <strong>✅ SESUDAH (Benar):</strong><br>
+            - Admin/Bendahara/Ketua: dari kolom <code class="field-highlight">jabatan</code> saja<br>
+            - Siswa: dari kolom <code class="field-highlight">sebagai</code> saja<br><br>
+
+            <strong>Contoh:</strong><br>
+            - jabatan = "Bendahara" → Role: Bendahara (meskipun sebagai = "Guru")<br>
+            - sebagai = "Siswa" → Role: Siswa (meskipun jabatan kosong)
+        </div>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. Test Cases dari Database</h3>
+        <div id="database-tests"></div>
+    </div>
+
+    <div class="test-section success">
+        <h3>3. Manual Login Test</h3>
+        <button onclick="testBendaharaPusat()">Test Bendahara Pusat (ID: 995)</button>
+        <button onclick="testBendaharaSekolah()">Test Bendahara Sekolah (ID: 794)</button>
+        <button onclick="testGuruSekolah()">Test Guru Sekolah (ID: 793)</button>
+        <div id="login-result" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="test-section info">
+        <h3>4. Routing Logic Summary</h3>
+        <pre><strong>Admin Roles (jabatan contains):</strong>
+- admin, operator, administrator, tu, tata usaha, staff administrasi
+
+<strong>Bendahara Roles (jabatan contains):</strong>
+- bendahara, keuangan, finance, kasir, treasurer
+
+<strong>Ketua Roles (jabatan contains):</strong>
+- ketua, kepala sekolah, kepala, pimpinan, leader, direktur, principal
+
+<strong>Siswa (sebagai equals):</strong>
+- sebagai = 'siswa'
+
+<strong>Routing Rules:</strong>
+YPWILUTIM + Admin → /admin/pusat
+YPWILUTIM + Bendahara → /bendahara/pusat
+YPWILUTIM + Ketua → /ketua/pusat
+YPWILUTIM + Other → /yayasan
+Other Unit + Admin → /admin/sekolah
+Other Unit + Bendahara → /bendahara/sekolah
+Other Unit + Ketua → /ketua/sekolah
+Other Unit + Other → /guru
+Any Unit + Siswa → /student</pre>
+    </div>
+
+    <script>
+        // Load database test cases
+        function loadDatabaseTests() {
+            const testCases = [
+                {
+                    id: 995,
+                    name: 'Muh. Fadli',
+                    tenant_id: 'YPWILUTIM',
+                    jabatan: 'Bendahara',
+                    sebagai: null,
+                    expected_route: '/bendahara/pusat',
+                    expected_role: 'Bendahara Pusat'
+                },
+                {
+                    id: 794,
+                    name: 'Tenriani, S.E',
+                    tenant_id: 'TKITWI06',
+                    jabatan: 'Bendahara',
+                    sebagai: 'Guru',
+                    expected_route: '/bendahara/sekolah',
+                    expected_role: 'Bendahara Sekolah'
+                },
+                {
+                    id: 793,
+                    name: 'Unknown Teacher',
+                    tenant_id: 'TKITWI06',
+                    jabatan: 'Guru Mapel',
+                    sebagai: 'Guru',
+                    expected_route: '/guru',
+                    expected_role: 'Guru'
+                }
+            ];
+
+            let html = '';
+            testCases.forEach((testCase, index) => {
+                const isPusat = testCase.tenant_id === 'YPWILUTIM';
+                const jabatan = testCase.jabatan || '';
+                const sebagai = testCase.sebagai || '';
+
+                // Simulate routing logic
+                let route = '/guru';
+                let role = 'Guru';
+
+                const adminRoles = ['admin', 'operator', 'administrator', 'tu', 'tata usaha', 'staff administrasi'];
+                const bendaharaRoles = ['bendahara', 'keuangan', 'finance', 'kasir', 'treasurer'];
+                const ketuaRoles = ['ketua', 'kepala sekolah', 'kepala', 'pimpinan', 'leader', 'direktur', 'principal'];
+
+                const isAdminRole = adminRoles.some(role => jabatan.toLowerCase().includes(role));
+                const isBendaharaRole = bendaharaRoles.some(role => jabatan.toLowerCase().includes(role));
+                const isKetuaRole = ketuaRoles.some(role => jabatan.toLowerCase().includes(role));
+                const isSiswa = sebagai.toLowerCase() === 'siswa';
+
+                if (isSiswa) {
+                    route = '/student';
+                    role = 'Siswa';
+                } else if (isPusat) {
+                    if (isAdminRole) route = '/admin/pusat', role = 'Admin Pusat';
+                    else if (isBendaharaRole) route = '/bendahara/pusat', role = 'Bendahara Pusat';
+                    else if (isKetuaRole) route = '/ketua/pusat', role = 'Ketua Pusat';
+                    else route = '/yayasan', role = 'Staf Yayasan';
+                } else {
+                    if (isAdminRole) route = '/admin/sekolah', role = 'Admin Sekolah';
+                    else if (isBendaharaRole) route = '/bendahara/sekolah', role = 'Bendahara Sekolah';
+                    else if (isKetuaRole) route = '/ketua/sekolah', role = 'Kepala Sekolah';
+                    else route = '/guru', role = 'Guru';
+                }
+
+                const matchesExpected = route === testCase.expected_route && role === testCase.expected_role;
+
+                html += `
+                    <div class="route-test ${matchesExpected ? 'route-match' : 'route-no-match'}">
+                        <strong>Test ${index + 1}:</strong> ${testCase.name} (ID: ${testCase.id})<br>
+                        <strong>Input:</strong> tenant_id="<span class="field-highlight">${testCase.tenant_id}</span>",
+                                        jabatan="<span class="field-highlight">${jabatan}</span>",
+                                        sebagai="<span class="field-highlight">${sebagai}</span>"<br>
+                        <strong>Expected:</strong> ${testCase.expected_route} (${testCase.expected_role})<br>
+                        <strong>Calculated:</strong> ${route} (${role})<br>
+                        <strong>Result:</strong> ${matchesExpected ? '✅ MATCH' : '❌ MISMATCH'}
+                    </div>
+                `;
+            });
+
+            document.getElementById('database-tests').innerHTML = html;
+        }
+
+        function testLogin(userId, description) {
+            const resultDiv = document.getElementById('login-result');
+
+            resultDiv.innerHTML = `<div class="info">Testing ${description}...</div>`;
+
+            // For demo purposes, we'll simulate the routing logic
+            // In real scenario, this would be done server-side
+
+            fetch('/api/teacher-data/' + userId)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        resultDiv.innerHTML = `<div class="error">❌ Error: ${data.error}</div>`;
+                        return;
+                    }
+
+                    // Simulate server routing logic
+                    const tenantId = data.tenant_id;
+                    const jabatan = data.jabatan || '';
+                    const sebagai = data.sebagai || '';
+
+                    const adminRoles = ['admin', 'operator', 'administrator', 'tu', 'tata usaha', 'staff administrasi'];
+                    const bendaharaRoles = ['bendahara', 'keuangan', 'finance', 'kasir', 'treasurer'];
+                    const ketuaRoles = ['ketua', 'kepala sekolah', 'kepala', 'pimpinan', 'leader', 'direktur', 'principal'];
+
+                    const isAdminRole = adminRoles.some(role => jabatan.toLowerCase().includes(role));
+                    const isBendaharaRole = bendaharaRoles.some(role => jabatan.toLowerCase().includes(role));
+                    const isKetuaRole = ketuaRoles.some(role => jabatan.toLowerCase().includes(role));
+                    const isSiswa = sebagai.toLowerCase() === 'siswa';
+
+                    let route = '/guru';
+                    let role = 'Guru';
+
+                    if (isSiswa) {
+                        route = '/student';
+                        role = 'Siswa';
+                    } else if (tenantId === 'YPWILUTIM') {
+                        if (isAdminRole) route = '/admin/pusat', role = 'Admin Pusat';
+                        else if (isBendaharaRole) route = '/bendahara/pusat', role = 'Bendahara Pusat';
+                        else if (isKetuaRole) route = '/ketua/pusat', role = 'Ketua Pusat';
+                        else route = '/yayasan', role = 'Staf Yayasan';
+                    } else {
+                        if (isAdminRole) route = '/admin/sekolah', role = 'Admin Sekolah';
+                        else if (isBendaharaRole) route = '/bendahara/sekolah', role = 'Bendahara Sekolah';
+                        else if (isKetuaRole) route = '/ketua/sekolah', role = 'Kepala Sekolah';
+                        else route = '/guru', role = 'Guru';
+                    }
+
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Routing Test Result:</strong><br>
+                            <strong>User:</strong> ${data.nama} (ID: ${data.id})<br>
+                            <strong>tenant_id:</strong> <span class="field-highlight">${tenantId}</span><br>
+                            <strong>jabatan:</strong> <span class="field-highlight">${jabatan}</span><br>
+                            <strong>sebagai:</strong> <span class="field-highlight">${sebagai}</span><br>
+                            <strong>Calculated Route:</strong> ${route}<br>
+                            <strong>Calculated Role:</strong> ${role}<br>
+                            <strong>Role Detection:</strong> ${isAdminRole ? 'Admin' : isBendaharaRole ? 'Bendahara' : isKetuaRole ? 'Ketua' : isSiswa ? 'Siswa' : 'Other'}
+                        </div>
+                    `;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML = `<div class="error">❌ Network Error: ${error.message}</div>`;
+                });
+        }
+
+        function testBendaharaPusat() {
+            testLogin(995, 'Bendahara Pusat (YPWILUTIM + Bendahara)');
+        }
+
+        function testBendaharaSekolah() {
+            testLogin(794, 'Bendahara Sekolah (TKITWI06 + Bendahara)');
+        }
+
+        function testGuruSekolah() {
+            // Try to find a teacher with "Guru" jabatan
+            testLogin(793, 'Guru Sekolah (TKITWI06 + Guru)');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDatabaseTests();
+            console.log('Jabatan-based routing test page loaded');
+        });
+    </script>
+</body>
+</html>

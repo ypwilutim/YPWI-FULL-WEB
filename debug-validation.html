@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Complete Profile Validation</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 400px; }
+        .field-status { display: inline-block; padding: 2px 6px; border-radius: 3px; margin: 2px; font-size: 12px; }
+        .field-valid { background: #d4edda; color: #155724; }
+        .field-invalid { background: #f8d7da; color: #721c24; }
+        .field-missing { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <h1>Debug Complete Profile Validation</h1>
+
+    <div class="test-section info">
+        <h3>1. Test Complete Profile Form</h3>
+        <button onclick="openCompleteProfile()">Open Complete Profile (Teacher ID: 995)</button>
+        <p><small>Open browser console (F12) to see detailed validation logs</small></p>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. Expected Field Mapping</h3>
+        <table border="1" style="width: 100%; border-collapse: collapse;">
+            <tr>
+                <th>Field</th>
+                <th>Frontend Form</th>
+                <th>Server Validation</th>
+                <th>Database Column</th>
+                <th>Status</th>
+            </tr>
+            <tr>
+                <td><strong>nama</strong></td>
+                <td>✓ nama</td>
+                <td>✓ required</td>
+                <td>nama</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>niy</strong></td>
+                <td>✓ niy</td>
+                <td>✓ conditional (TMT ≥ 2 years)</td>
+                <td>niy</td>
+                <td>⚠️ Check TMT date</td>
+            </tr>
+            <tr>
+                <td><strong>nik</strong></td>
+                <td>✓ nik</td>
+                <td>✓ required</td>
+                <td>nik</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>jenis_kelamin</strong></td>
+                <td>✓ jenis_kelamin</td>
+                <td>✓ required</td>
+                <td>jenis_kelamin</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>tempat_lahir</strong></td>
+                <td>✓ tempat_lahir</td>
+                <td>✓ required</td>
+                <td>tempat_lahir</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>tanggal_lahir</strong></td>
+                <td>✓ tanggal_lahir</td>
+                <td>✓ required</td>
+                <td>tanggal_lahir</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>alamat</strong></td>
+                <td>✓ alamat</td>
+                <td>✓ required</td>
+                <td>alamat</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>no_wa</strong></td>
+                <td>✓ no_wa</td>
+                <td>✓ required</td>
+                <td>no_wa</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>email</strong></td>
+                <td>✓ email</td>
+                <td>❌ NOT required by server</td>
+                <td>email</td>
+                <td>ℹ️ Optional</td>
+            </tr>
+            <tr>
+                <td><strong>jenjang</strong></td>
+                <td>✓ jenjang</td>
+                <td>✓ required</td>
+                <td>jenjang</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>jabatan</strong></td>
+                <td>✓ jabatan (primary)</td>
+                <td>✓ required</td>
+                <td>jabatan</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>jabatan_tambahan</strong></td>
+                <td>✓ selectedJabatans.join()</td>
+                <td>❌ NOT validated</td>
+                <td>jabatan_tambahan</td>
+                <td>ℹ️ Stored separately</td>
+            </tr>
+            <tr>
+                <td><strong>tenant_id</strong></td>
+                <td>✓ tenant_id_hidden</td>
+                <td>❓ NOT in validation list</td>
+                <td>tenant_id</td>
+                <td>⚠️ Check if required</td>
+            </tr>
+            <tr>
+                <td><strong>accessible_units</strong></td>
+                <td>✓ JSON.stringify(additional)</td>
+                <td>❌ NOT validated</td>
+                <td>accessible_units</td>
+                <td>ℹ️ Stored separately</td>
+            </tr>
+            <tr>
+                <td><strong>sebagai</strong></td>
+                <td>✓ sebagai</td>
+                <td>✓ required</td>
+                <td>sebagai</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>status_kepegawaian</strong></td>
+                <td>✓ status_kepegawaian</td>
+                <td>✓ required</td>
+                <td>status_kepegawaian</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>tmt</strong></td>
+                <td>✓ tmt</td>
+                <td>✓ required</td>
+                <td>tmt</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>status_aktif</strong></td>
+                <td>✓ status_aktif</td>
+                <td>✓ required</td>
+                <td>status_aktif</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>keterangan</strong></td>
+                <td>✓ keterangan</td>
+                <td>✓ required</td>
+                <td>keterangan</td>
+                <td>✅ Should work</td>
+            </tr>
+            <tr>
+                <td><strong>link_foto</strong></td>
+                <td>❌ generated from upload</td>
+                <td>✓ conditional (if no existing photo)</td>
+                <td>link_foto</td>
+                <td>⚠️ Check existing photo logic</td>
+            </tr>
+        </table>
+    </div>
+
+    <div class="test-section warning">
+        <h3>3. Most Likely Issues</h3>
+        <ol>
+            <li><strong>tenant_id missing from validation:</strong> Field dikirim tapi tidak dicek server</li>
+            <li><strong>TMT date parsing error:</strong> Jika TMT invalid, niy validation bisa error</li>
+            <li><strong>link_foto logic error:</strong> Existing photo detection gagal</li>
+            <li><strong>Form field not submitted:</strong> Field HTML tidak terkirim ke server</li>
+            <li><strong>Database update failed:</strong> Query gagal, data tidak tersimpan</li>
+        </ol>
+    </div>
+
+    <div class="test-section success">
+        <h3>4. Debug Steps</h3>
+        <ol>
+            <li>Open /complete-profile.html</li>
+            <li>Fill all required fields</li>
+            <li>Open browser console (F12)</li>
+            <li>Click submit</li>
+            <li>Check console logs for missing fields</li>
+            <li>Check server logs for validation details</li>
+        </ol>
+    </div>
+
+    <div class="test-section data">
+        <h3>5. Quick Test API</h3>
+        <button onclick="testTeacherData()">Test Teacher Data API</button>
+        <button onclick="testValidationLogic()">Test Validation Logic</button>
+        <div id="api-test-result" style="margin-top: 10px;"></div>
+    </div>
+
+    <script>
+        function openCompleteProfile() {
+            window.open('/complete-profile.html?teacherId=995', '_blank');
+        }
+
+        async function testTeacherData() {
+            const resultDiv = document.getElementById('api-test-result');
+
+            try {
+                const response = await fetch('/api/teacher-data/995');
+                const data = await response.json();
+
+                let html = '<h5>Teacher Data API Test:</h5>';
+                html += `<div>Response status: ${response.status}</div>`;
+                html += `<div>Data keys: ${Object.keys(data).join(', ')}</div>`;
+
+                if (data.link_foto) {
+                    html += `<div class="field-valid">✅ Has existing photo: ${data.link_foto}</div>`;
+                } else {
+                    html += `<div class="field-invalid">❌ No existing photo</div>`;
+                }
+
+                resultDiv.innerHTML = html;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="field-invalid">❌ API Error: ${error.message}</div>`;
+            }
+        }
+
+        function testValidationLogic() {
+            const resultDiv = document.getElementById('api-test-result');
+
+            // Mock teacher data
+            const mockTeacher = {
+                nama: 'Test User',
+                nik: '1234567890123456',
+                jenis_kelamin: 'Laki-laki',
+                tempat_lahir: 'Jakarta',
+                tanggal_lahir: '1990-01-01',
+                alamat: 'Jl. Test No. 123',
+                no_wa: '6281234567890',
+                jenjang: '06 YPWI',
+                jabatan: 'Guru Mapel',
+                sebagai: 'Guru',
+                status_kepegawaian: 'PTY',
+                tmt: '2020-01-01',
+                status_aktif: 'Aktif',
+                keterangan: 'Test user',
+                link_foto: 'uploads/FOTO_TEST.jpg'
+            };
+
+            // Test TMT logic
+            const tmtDate = new Date(mockTeacher.tmt);
+            const now = new Date();
+            const diffYears = (now - tmtDate) / (1000 * 60 * 60 * 24 * 365);
+            const niyRequired = diffYears >= 2;
+
+            // Base required fields
+            let requiredFields = ['nama', 'nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'no_wa', 'jenjang', 'jabatan', 'sebagai', 'status_kepegawaian', 'tmt', 'status_aktif', 'keterangan'];
+
+            if (niyRequired) {
+                requiredFields.push('niy');
+            }
+
+            // Check existing photo
+            const hasExistingPhoto = mockTeacher.link_foto && mockTeacher.link_foto.trim() !== '';
+            if (!hasExistingPhoto) {
+                requiredFields.push('link_foto');
+            }
+
+            // Validate
+            const missingFields = [];
+            const isComplete = requiredFields.every(field => {
+                const value = mockTeacher[field];
+                const isValid = value !== null && value !== undefined && value.toString().trim() !== '';
+
+                if (!isValid) {
+                    missingFields.push(field);
+                }
+
+                return isValid;
+            });
+
+            let html = '<h5>Validation Logic Test:</h5>';
+            html += `<div>TMT years: ${diffYears.toFixed(1)} → NIY required: ${niyRequired}</div>`;
+            html += `<div>Has existing photo: ${hasExistingPhoto}</div>`;
+            html += `<div>Required fields: ${requiredFields.join(', ')}</div>`;
+            html += `<div>Validation result: ${isComplete ? '✅ PASS' : '❌ FAIL'}</div>`;
+
+            if (!isComplete) {
+                html += `<div class="field-invalid">Missing fields: ${missingFields.join(', ')}</div>`;
+            }
+
+            resultDiv.innerHTML = html;
+        }
+
+        console.log('Debug validation page loaded');
+    </script>
+</body>
+</html>

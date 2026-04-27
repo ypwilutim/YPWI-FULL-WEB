@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Admin Routing</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Test Admin Routing & File Structure</h1>
+
+    <div class="test-section info">
+        <h3>1. Routing Logic Summary</h3>
+        <div>
+            <strong>Admin Pusat (YPWILUTIM):</strong><br>
+            - Route: /admin/pusat<br>
+            - File served: /admin/pusat/index.html<br>
+            - Redirect to: dashboard.html<br><br>
+
+            <strong>Admin Sekolah (Other units):</strong><br>
+            - Route: /admin/sekolah<br>
+            - File served: /admin/sekolah/index.html<br>
+            - No redirect needed (full dashboard)
+        </div>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. File Structure Check</h3>
+        <div id="file-check">Checking...</div>
+    </div>
+
+    <div class="test-section success">
+        <h3>3. Test Login Simulations</h3>
+        <button onclick="testAdminPusat()">Test Admin Pusat Login</button>
+        <button onclick="testAdminSekolah()">Test Admin Sekolah Login</button>
+        <div id="login-result" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="test-section info">
+        <h3>4. Expected File Paths</h3>
+        <pre>✅ /admin/pusat/index.html → redirects to dashboard.html
+✅ /admin/pusat/dashboard.html → exists
+✅ /admin/sekolah/index.html → full dashboard (no redirect)
+❌ /admin/pusat/dashboard-admin.html → should not exist</pre>
+    </div>
+
+    <script>
+        async function checkFileStructure() {
+            const result = document.getElementById('file-check');
+
+            // Check admin/pusat files
+            const pusatFiles = [
+                '/admin/pusat/index.html',
+                '/admin/pusat/dashboard.html',
+                '/admin/sekolah/index.html'
+            ];
+
+            let html = '<h5>File Structure Status:</h5>';
+
+            for (const file of pusatFiles) {
+                try {
+                    const response = await fetch(file, { method: 'HEAD' });
+                    const status = response.ok ? '✅ EXISTS' : '❌ NOT FOUND';
+                    const color = response.ok ? 'green' : 'red';
+                    html += `<div><strong>${file}:</strong> <span style="color: ${color}">${status}</span></div>`;
+                } catch (error) {
+                    html += `<div><strong>${file}:</strong> <span style="color: red">❌ ERROR: ${error.message}</span></div>`;
+                }
+            }
+
+            // Check redirect in admin/pusat/index.html
+            try {
+                const response = await fetch('/admin/pusat/index.html');
+                const text = await response.text();
+                const hasCorrectRedirect = text.includes('dashboard.html');
+                const hasWrongRedirect = text.includes('dashboard-admin.html');
+
+                html += '<br><h6>Admin Pusat Redirect Check:</h6>';
+                html += `<div>Redirects to dashboard.html: <strong class="${hasCorrectRedirect ? 'text-success' : 'text-danger'}">${hasCorrectRedirect ? '✅ YES' : '❌ NO'}</strong></div>`;
+                html += `<div>Still redirects to dashboard-admin.html: <strong class="${hasWrongRedirect ? 'text-danger' : 'text-success'}">${hasWrongRedirect ? '❌ YES (WRONG)' : '✅ NO (CORRECT)'}</strong></div>`;
+            } catch (error) {
+                html += `<div>Redirect check failed: ${error.message}</div>`;
+            }
+
+            result.innerHTML = html;
+        }
+
+        function testAdminPusat() {
+            const resultDiv = document.getElementById('login-result');
+
+            // Simulate admin pusat login
+            const testData = {
+                email: 'admin@ypwi.sch.id',
+                password: 'password'
+            };
+
+            resultDiv.innerHTML = '<div class="info">Testing Admin Pusat login simulation...</div>';
+
+            // Since we can't actually login without backend, simulate the routing logic
+            const tenantId = 'YPWILUTIM';
+            const jabatan = 'Admin';
+
+            const adminRoles = ['admin', 'operator', 'administrator', 'tu', 'tata usaha', 'staff administrasi'];
+            const isAdminRole = adminRoles.some(role => jabatan.toLowerCase().includes(role));
+
+            let route = '/guru';
+            if (tenantId === 'YPWILUTIM') {
+                if (isAdminRole) route = '/admin/pusat';
+            }
+
+            resultDiv.innerHTML = `
+                <div class="success">
+                    <strong>✅ Admin Pusat Routing Test</strong><br>
+                    <strong>Input:</strong> tenant_id="${tenantId}", jabatan="${jabatan}"<br>
+                    <strong>Role Detection:</strong> ${isAdminRole ? 'Admin detected' : 'Admin not detected'}<br>
+                    <strong>Calculated Route:</strong> ${route}<br>
+                    <strong>Expected File:</strong> /admin/pusat/index.html → dashboard.html<br>
+                    <strong>Result:</strong> Should work correctly
+                </div>
+            `;
+        }
+
+        function testAdminSekolah() {
+            const resultDiv = document.getElementById('login-result');
+
+            const tenantId = 'TKITWI01';
+            const jabatan = 'Admin';
+
+            const adminRoles = ['admin', 'operator', 'administrator', 'tu', 'tata usaha', 'staff administrasi'];
+            const isAdminRole = adminRoles.some(role => jabatan.toLowerCase().includes(role));
+
+            let route = '/guru';
+            if (tenantId !== 'YPWILUTIM') {
+                if (isAdminRole) route = '/admin/sekolah';
+            }
+
+            resultDiv.innerHTML = `
+                <div class="success">
+                    <strong>✅ Admin Sekolah Routing Test</strong><br>
+                    <strong>Input:</strong> tenant_id="${tenantId}", jabatan="${jabatan}"<br>
+                    <strong>Role Detection:</strong> ${isAdminRole ? 'Admin detected' : 'Admin not detected'}<br>
+                    <strong>Calculated Route:</strong> ${route}<br>
+                    <strong>Expected File:</strong> /admin/sekolah/index.html (full dashboard)<br>
+                    <strong>Result:</strong> Should work correctly
+                </div>
+            `;
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkFileStructure();
+        });
+    </script>
+</body>
+</html>

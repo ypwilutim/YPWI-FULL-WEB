@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pengajuan Izin/Sakit - YPWI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #93d5f4;
+            --deep-green: #1f8a4a;
+            --bright-yellow: #eae830;
+            --soft-bg: #f8fdff;
+        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; color: #2d3436; background-color: var(--soft-bg); }
+        .navbar { background-color: rgba(147, 213, 244, 0.95) !important; backdrop-filter: blur(10px); border-bottom: 3px solid var(--bright-yellow); padding: 15px 0; }
+        .navbar-brand { font-weight: 800; color: var(--deep-green) !important; font-size: 1.5rem; }
+        .btn-back { background: var(--deep-green); color: white; border-radius: 50px; padding: 8px 20px; text-decoration: none; }
+        .btn-back:hover { background: var(--bright-yellow); color: var(--deep-green); }
+        .table-container { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 10px 30px rgba(147, 213, 244, 0.25); }
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-weight: 600; font-size: 0.8rem; }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .action-btn { padding: 5px 10px; border-radius: 8px; border: none; cursor: pointer; }
+        .btn-approve { background: var(--deep-green); color: white; }
+        .btn-reject { background: #dc2626; color: white; }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="bi bi-building"></i> YPWI Luwu Timur
+            </a>
+            <a href="dashboard.html" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Kembali
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-envelope-check"></i> Pengajuan Izin/Sakit</h2>
+            <div>
+                <select id="filterStatus" class="form-select" style="width: 200px; display: inline-block;">
+                    <option value="">Semua Status</option>
+                    <option value="pending">Menunggu</option>
+                    <option value="approved">Disetujui</option>
+                    <option value="rejected">Ditolak</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Nama Guru</th>
+                        <th>Jenis</th>
+                        <th>Alasan</th>
+                        <th>Tanggal</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody id="pengajuanTable">
+                    <tr><td colspan="6" class="text-center text-muted">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detail Pengajuan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="modalContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) { window.location.href = '/login.html'; }
+
+        async function loadPengajuan() {
+            const status = document.getElementById('filterStatus').value;
+            let url = '/api/all-attendance-requests';
+            if (status) url += `?status=${status}`;
+
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+
+            const tbody = document.getElementById('pengajuanTable');
+            if (data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted">Tidak ada pengajuan</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(p => `
+                <tr>
+                    <td><strong>${p.nama}</strong></td>
+                    <td><span class="badge ${p.jenis === 'Izin' ? 'bg-info' : 'bg-warning'}">${p.jenis}</span></td>
+                    <td>${p.alasan}</td>
+                    <td>${new Date(p.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(p.tanggal_akhir).toLocaleDateString('id-ID')}</td>
+                    <td><span class="status-badge status-${p.status}">${p.status === 'pending' ? 'Menunggu' : p.status === 'approved' ? 'Disetujui' : 'Ditolak'}</span></td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary" onclick="showDetail(${p.id})">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        ${p.status === 'pending' ? `
+                        <button class="action-btn btn-approve" onclick="updateStatus(${p.id}, 'approved')">
+                            <i class="bi bi-check"></i>
+                        </button>
+                        <button class="action-btn btn-reject" onclick="updateStatus(${p.id}, 'rejected')">
+                            <i class="bi bi-x"></i>
+                        </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function showDetail(id) {
+            const res = await fetch('/api/all-attendance-requests', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            const p = data.find(x => x.id === id);
+            if (!p) return;
+
+            document.getElementById('modalContent').innerHTML = `
+                <p><strong>Nama:</strong> ${p.nama}</p>
+                <p><strong>Jenis:</strong> ${p.jenis}</p>
+                <p><strong>Alasan:</strong> ${p.alasan}</p>
+                <p><strong>Tanggal:</strong> ${new Date(p.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(p.tanggal_akhir).toLocaleDateString('id-ID')}</p>
+                <p><strong>Catatan:</strong> ${p.catatan || '-'}</p>
+                <p><strong>Status:</strong> <span class="status-badge status-${p.status}">${p.status}</span></p>
+                ${p.status === 'pending' ? `
+                <hr>
+                <div class="mb-3">
+                    <label class="form-label">Catatan Respon</label>
+                    <input type="text" id="catatan${p.id}" class="form-control" placeholder="Opsional...">
+                </div>
+                <button class="btn btn-success" onclick="updateStatus(${p.id}, 'approved')">Setuju</button>
+                <button class="btn btn-danger" onclick="updateStatus(${p.id}, 'rejected')">Tolak</button>
+                ` : ''}
+            `;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
+        }
+
+        async function updateStatus(id, status) {
+            const catatan = document.getElementById(`catatan${id}`)?.value || '';
+            if (!confirm(`Yakin ingin ${status === 'approved' ? 'menyetuju' : 'menolak'} pengajuan ini?`)) return;
+
+            const res = await fetch(`/api/attendance-request/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ status, catatan })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('Berhasil!');
+                loadPengajuan();
+                bootstrap.Modal.getInstance(document.getElementById('detailModal')).hide();
+            } else {
+                alert('Gagal: ' + data.error);
+            }
+        }
+
+        document.getElementById('filterStatus').addEventListener('change', loadPengajuan);
+        loadPengajuan();
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

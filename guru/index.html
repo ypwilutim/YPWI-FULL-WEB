@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPWI Smart System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f9ff; }
+        .active-link { background: #1f8a4a; color: white; border-radius: 1rem; }
+        .nav-item:not(.active-link):hover { background-color: #f9fafb; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(31, 138, 74, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen z-50 hidden md:block relative">
+        <button onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 text-gray-600 hover:text-gray-800 z-10"><i class="bi bi-x-lg text-xl"></i></button>
+        <div class="p-8 border-b border-gray-50 text-center">
+            <h1 class="text-2xl font-black text-[#1f8a4a]">YPWI<span class="text-[#93d5f4]">HUB</span></h1>
+            <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em]">LUWU TIMUR</p>
+        </div>
+
+        <nav class="flex-1 p-6 space-y-6 overflow-y-auto">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Kegiatan Mengajar</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('dashboard')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-grid-1x2-fill"></i> Dashboard Utama
+                    </button>
+                    <button onclick="renderRoute('jurnal')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-journal-bookmark"></i> Jurnal & Absensi
+                    </button>
+                </div>
+            </div>
+
+            <div id="walikelas-nav" class="hidden">
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2 text-blue-500">Manajemen Wali Kelas</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('siswaku')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-blue-50 rounded-xl transition">
+                        <i class="bi bi-people"></i> Pantauan Anak Didik
+                    </button>
+                    <button onclick="renderRoute('nilai')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-blue-50 rounded-xl transition">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Input Nilai & Leger
+                    </button>
+                </div>
+            </div>
+
+            <div id="bendahara-nav" class="hidden">
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2 text-green-600">Keuangan</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('keuangan')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-green-50 rounded-xl transition">
+                        <i class="bi bi-cash-stack"></i> Dashboard Keuangan
+                    </button>
+                    <button onclick="renderRoute('kwitansi')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-green-50 rounded-xl transition">
+                        <i class="bi bi-receipt"></i> Kelola Kwitansi
+                    </button>
+                </div>
+            </div>
+
+            <div id="admin-nav" class="hidden">
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2 text-purple-600">Administrasi</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('admin-guru')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-purple-50 rounded-xl transition">
+                        <i class="bi bi-person-badge"></i> Kelola Guru
+                    </button>
+                    <button onclick="renderRoute('admin-siswa')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-purple-50 rounded-xl transition">
+                        <i class="bi bi-people-fill"></i> Kelola Siswa
+                    </button>
+                    <button onclick="renderRoute('admin-absensi')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-purple-50 rounded-xl transition">
+                        <i class="bi bi-qr-code-scan"></i> Rekap Absensi
+                    </button>
+                </div>
+            </div>
+
+            <div id="pimpinan-nav" class="hidden">
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2 text-red-600">Pimpinan</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('laporan-pimpinan')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-red-50 rounded-xl transition">
+                        <i class="bi bi-file-earmark-text"></i> Laporan Utama
+                    </button>
+                    <button onclick="renderRoute('analitik')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-red-50 rounded-xl transition">
+                        <i class="bi bi-graph-up"></i> Analitik Sekolah
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Alat Kreatif</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('idstudio')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-palette"></i> ID Studio (Editor)
+                    </button>
+                    <button onclick="renderRoute('sdm')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-folder"></i> Digital SDM
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2 text-orange-500">Kepegawaian</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('pengajuan')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-orange-50 rounded-xl transition">
+                        <i class="bi bi-send-check"></i> Ajukan Izin/Sakit
+                    </button>
+                    <button onclick="renderRoute('riwayat-izin')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-orange-50 rounded-xl transition">
+                        <i class="bi bi-clock-history"></i> Riwayat Pengajuan
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-6 bg-gray-50 m-4 rounded-2xl cursor-pointer" onclick="openProfileModal()">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#1f8a4a] rounded-xl flex items-center justify-center text-white font-bold" id="avatar">R</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-gray-800 truncate" id="user-name">Memuat...</p>
+                    <p class="text-[10px] text-gray-400" id="user-unit">Memuat Unit...</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="bg-white/80 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-600"><i class="bi bi-list"></i></button>
+                <h2 id="page-title" class="text-xl font-extrabold text-gray-800">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <span id="user-role-badge" class="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs font-bold"></span>
+                <div class="bg-[#eae830]/20 text-[#1f8a4a] px-4 py-1.5 rounded-full text-xs font-black border border-[#eae830]">
+                    <i class="bi bi-stars"></i> <span id="user-points">0</span> POIN
+                </div>
+                <button onclick="logout()" class="text-gray-400 hover:text-gray-600"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
+        </header>
+
+        <div id="app-viewport" class="p-8 overflow-y-auto max-h-[calc(100vh-80px)]">
+            <!-- Content will be rendered here -->
+        </div>
+    </main>
+
+    <div id="modal-container" class="fixed inset-0 bg-black/50 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 relative">
+            <button onclick="closeModal()" class="absolute top-6 right-6 text-gray-400"><i class="bi bi-x-lg"></i></button>
+            <div id="modal-content"></div>
+        </div>
+    </div>
+
+    <div id="whacenter-modal" class="fixed inset-0 bg-black/50 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 relative">
+            <button onclick="closeWhacenterModal()" class="absolute top-6 right-6 text-gray-400"><i class="bi bi-x-lg"></i></button>
+            <div id="whacenter-content"></div>
+        </div>
+    </div>
+
+    <div id="profile-modal" class="fixed inset-0 bg-black/50 hidden z-[60] flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-lg rounded-[2.5rem] p-8 relative">
+            <button onclick="closeProfileModal()" class="absolute top-6 right-6 text-gray-400"><i class="bi bi-x-lg"></i></button>
+            <div id="profile-content"></div>
+        </div>
+    </div>
+
+<script>
+        const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('role') || 'Guru';
+        const userSebagai = localStorage.getItem('sebagai') || '';
+
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        let currentTeacherId;
+        let currentJabatan = '';
+
+
+
+        // Show/hide menu based on sebagai
+        function setupMenuByRole() {
+            const sebagai = userSebagai.toLowerCase().trim();
+
+            // Show role-specific menus
+            if (sebagai === 'bendahara') {
+                document.getElementById('bendahara-nav')?.classList.remove('hidden');
+            } else if (sebagai === 'admin' || sebagai === 'operator' || sebagai === 'tu' || sebagai === 'staf') {
+                document.getElementById('admin-nav')?.classList.remove('hidden');
+            } else if (sebagai === 'pimpin' || sebagai === 'pusat' || sebagai === 'pimpinan') {
+                document.getElementById('pimpinan-nav')?.classList.remove('hidden');
+            } else if (sebagai === 'guru' || sebagai === '') {
+                // Default: show basic menu for guru
+            }
+
+            // Walikelas check - based on currentJabatan
+            if (currentJabatan && currentJabatan.toLowerCase().includes('wali')) {
+                document.getElementById('walikelas-nav')?.classList.remove('hidden');
+            }
+            
+            // Show role badge
+            document.getElementById('user-role-badge').innerText = userSebagai || userRole;
+        }
+
+        // Fetch teacher profile
+        fetch('/api/teacher-profile', {
+            headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+            document.getElementById('user-name').innerText = data.nama;
+            document.getElementById('user-unit').innerText = 'YPWI ' + data.tenant_id;
+            document.getElementById('user-points').innerText = data.points || 0;
+            
+            currentTeacherId = data.id;
+            currentJabatan = data.jabatan || '';
+            
+            // Check if walikelas based on profile data
+            if (data.jabatan && data.jabatan.toLowerCase().includes('wali')) {
+                document.getElementById('walikelas-nav').classList.remove('hidden');
+            }
+
+            // Avatar
+            if (data.link_foto) {
+                document.getElementById('avatar').innerHTML = `<img src="../${data.link_foto}" class="w-full h-full object-cover rounded-xl">`;
+            }
+            
+            // Setup menu after getting profile
+            setupMenuByRole();
+        })
+        .catch(err => {
+            console.error('Error fetching profile:', err);
+            window.location.href = '/login.html';
+        });
+
+        // ROUTING LOGIC
+        function renderRoute(route) {
+            console.log('Rendering route:', route);
+            const viewport = document.getElementById('app-viewport');
+            const title = document.getElementById('page-title');
+            
+            // Update Active Link UI
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-link', 'text-white'));
+            const activeBtn = document.querySelector(`button[onclick="renderRoute('${route}')"]`);
+            if (activeBtn) activeBtn.classList.add('active-link', 'text-white');
+            
+            let html = '';
+
+            switch(route) {
+                case 'dashboard':
+                    title.innerText = "Beranda Guru";
+                    html = `
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="md:col-span-2 space-y-8">
+                                <div class="bg-gradient-to-r from-[#1f8a4a] to-[#2d6a4f] p-10 rounded-[3rem] text-white card-shadow">
+                                    <h1 class="text-3xl font-black mb-2 italic">Selamat Mengajar!</h1>
+                                    <p class="opacity-80 text-sm mb-6">"Pendidikan adalah senjata paling mematikan di dunia, karena dengannya Anda bisa mengubah dunia."</p>
+                                    <div class="flex gap-4">
+                                        <button onclick="renderRoute('jurnal')" class="bg-[#eae830] text-[#1f8a4a] px-6 py-3 rounded-2xl font-black text-sm">MULAI ABSENSI</button>
+                                        <button onclick="openJadwal()" class="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-2xl font-bold text-sm transition">LIHAT JADWAL</button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div class="bg-white p-6 rounded-[2rem] border border-gray-50 card-shadow">
+                                        <p class="text-gray-400 text-[10px] font-bold uppercase mb-2">Tugas Siswa Masuk</p>
+                                        <h3 class="text-3xl font-black text-gray-800" id="tugas-count">0</h3>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-[2rem] border border-gray-100">
+                                        <p class="text-gray-400 text-[10px] font-bold uppercase mb-2">Presensi Kelas Anda</p>
+                                        <h3 class="text-3xl font-black text-[#1f8a4a]" id="presensi-percent">0%</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-[3rem] p-8 border border-gray-100 card-shadow">
+                                <h3 class="font-bold text-lg mb-6 text-gray-800">Kabar Yayasan</h3>
+                                <div id="news-list" class="space-y-6">
+                                    <!-- News from DB -->
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    // Fetch dashboard data
+                    fetch('/api/dashboard-data', { headers: { 'Authorization': `Bearer ${token}` } })
+                    .then(res => res.json())
+                    .then(stats => {
+                        document.getElementById('tugas-count').innerText = stats.teachers || 0;
+                        document.getElementById('presensi-percent').innerText = '98.2%'; // Placeholder
+                    })
+                    .catch(err => console.error('Stats fetch error:', err));
+                    break;
+                
+                case 'jurnal':
+                    title.innerText = "Jurnal & Presensi Digital";
+                    html = `
+                        <div class="bg-white rounded-[2.5rem] overflow-hidden card-shadow">
+                            <div class="p-8 border-b border-gray-50 flex justify-between items-center">
+                                <h3 class="font-bold">Daftar Mengajar Hari Ini</h3>
+                                <input type="date" id="jadwal-date" class="border rounded-xl p-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1f8a4a]" value="${new Date().toISOString().split('T')[0]}">
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 text-left text-[10px] font-bold text-gray-400 uppercase">
+                                        <tr>
+                                            <th class="p-6">Waktu</th>
+                                            <th class="p-6">Kelas</th>
+                                            <th class="p-6">Mapel</th>
+                                            <th class="p-6">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="jadwal-table" class="divide-y divide-gray-50 text-sm font-semibold">
+                                        <!-- Dynamic rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                    // Fetch schedule
+                    fetchSchedule();
+                    break;
+                    
+                case 'siswaku':
+                    title.innerText = "Pantauan Anak Didik";
+                    html = `
+                        <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                            <h3 class="font-bold text-xl mb-4">Radar Siswa Kelas Anda</h3>
+                            <div class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 text-left text-[10px] font-bold text-gray-400 uppercase">
+                                        <tr>
+                                            <th class="p-6">No</th>
+                                            <th class="p-6">Nama Siswa</th>
+                                            <th class="p-6">NISN</th>
+                                            <th class="p-6">Kehadiran</th>
+                                            <th class="p-6">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="siswa-list" class="divide-y divide-gray-50 text-sm font-semibold">
+                                        <!-- Dynamic rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    `;
+                    fetchSiswaAttendance();
+                    break;
+                    
+                case 'nilai':
+                    title.innerText = "Input Nilai & Leger";
+                    html = `
+                        <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                            <h3 class="font-bold text-xl mb-4">E-Spreadsheet Nilai</h3>
+                            <div class="mb-6">
+                                <label class="block text-sm font-bold text-gray-400 mb-2">MATA PELAJARAN</label>
+                                <select id="subject-select" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-[#1f8a4a]">
+                                    <option value="Matematika">Matematika</option>
+                                    <option value="Bahasa Indonesia">Bahasa Indonesia</option>
+                                    <option value="Informatika">Informatika</option>
+                                    <option value="Fisika">Fisika</option>
+                                    <option value="Kimia">Kimia</option>
+                                    <option value="Biologi">Biologi</option>
+                                </select>
+                            </div>
+                            <div id="grades-table" class="overflow-x-auto">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50 text-left text-[10px] font-bold text-gray-400 uppercase">
+                                        <tr>
+                                            <th class="p-6">No</th>
+                                            <th class="p-6">Nama Siswa</th>
+                                            <th class="p-6">UTS</th>
+                                            <th class="p-6">UAS</th>
+                                            <th class="p-6">Tugas</th>
+                                            <th class="p-6">UH</th>
+                                            <th class="p-6">Raport</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="grades-body" class="divide-y divide-gray-50 text-sm font-semibold">
+                                        <!-- Dynamic rows -->
+                                    </tbody>
+                                </table>
+                            </div>
+                            <button onclick="saveGrades()" class="mt-6 w-full py-4 bg-[#1f8a4a] text-white font-black rounded-[1.5rem] shadow-lg shadow-green-100">SIMPAN NILAI</button>
+                        </div>
+                    `;
+                    loadGrades();
+                    break;
+                    
+                case 'idstudio':
+                    title.innerText = "ID Studio (Editor)";
+                    html = `
+                        <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                            <h3 class="font-bold text-xl mb-4">Editor Kreatif</h3>
+                            <canvas id="canvas" width="400" height="300" class="border rounded-lg"></canvas>
+                            <br>
+                            <button onclick="saveDesign()" class="bg-[#1f8a4a] text-white px-4 py-2 rounded-lg">Simpan Desain</button>
+                        </div>
+                    `;
+                    initCanvas();
+                    break;
+
+case 'sdm':
+                    title.innerText = "Digital SDM";
+                    html = `
+                        <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                            <h3 class="font-bold text-xl mb-4">Upload Dokumen</h3>
+                            <input type="file" id="document-file" accept=".pdf,.doc,.docx,.xls,.xlsx" class="mb-4">
+                            <button onclick="uploadDocument()" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-2xl font-bold">Upload</button>
+                            <div class="mt-8">
+                                <h4 class="font-bold mb-4">Dokumen Tersimpan</h4>
+                                <div id="documents-list" class="space-y-4">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    loadDocuments();
+                    break;
+
+                case 'pengajuan':
+                    title.innerText = "Ajukan Izin/Sakit";
+                    html = `
+                        <div class="bg-white rounded-[2rem] p-8 card-shadow max-w-2xl mx-auto">
+                            <form id="pengajuan-form" class="space-y-6">
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Jenis Pengajuan</label>
+                                    <select id="jenis-pengajuan" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#1f8a4a] outline-none">
+                                        <option value="Izin">Izin</option>
+                                        <option value="Sakit">Sakit</option>
+                                    </select>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Tanggal Mulai</label>
+                                        <input type="date" id="tgl-mulai" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#1f8a4a] outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Tanggal Selesai</label>
+                                        <input type="date" id="tgl-akhir" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#1f8a4a] outline-none">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Keterangan/Alasan</label>
+                                    <textarea id="alasan" rows="4" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-[#1f8a4a] outline-none" placeholder="Jelaskan alasan pengajuan izin/sakit..."></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-[#1f8a4a] text-white py-4 rounded-2xl font-bold hover:bg-green-700 transition">
+                                    <i class="bi bi-send me-2"></i>Kirim Pengajuan
+                                </button>
+                            </form>
+                        </div>
+                    `;
+                    document.getElementById('tgl-mulai').value = new Date().toISOString().split('T')[0];
+                    document.getElementById('tgl-akhir').value = new Date().toISOString().split('T')[0];
+                    break;
+
+                case 'riwayat-izin':
+                    title.innerText = "Riwayat Pengajuan";
+                    html = `
+                        <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                            <div id="riwayat-list" class="space-y-4">
+                                <div class="text-center py-8 text-gray-400">Memuat...</div>
+                            </div>
+                        </div>
+                    `;
+                    loadRiwayatPengajuan();
+                    break;
+            }
+            viewport.innerHTML = html;
+
+            // Auto-close sidebar on mobile after clicking a route
+            if (window.innerWidth < 768) {
+                const sidebar = document.querySelector('aside');
+                sidebar.classList.add('hidden');
+            }
+        }
+
+        // Fetch schedule
+        function fetchSchedule() {
+            const date = document.getElementById('jadwal-date')?.value || new Date().toISOString().split('T')[0];
+            // Placeholder: Fetch from DB
+            const table = document.getElementById('jadwal-table');
+            table.innerHTML = `
+                <tr>
+                    <td class="p-6">07:30 - 09:00</td>
+                    <td class="p-6 text-blue-500">X-IPA 1</td>
+                    <td class="p-6">Informatika</td>
+                    <td class="p-6">
+                        <button onclick="openAbsen()" class="text-[#1f8a4a] hover:underline italic">Isi Jurnal & Absen</button>
+                    </td>
+                </tr>
+            `;
+        }
+
+        // Fetch siswa attendance
+        function fetchSiswaAttendance() {
+            fetch('/api/students-attendance', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(students => {
+                const tbody = document.getElementById('siswa-list');
+                tbody.innerHTML = students.map((student, index) => `
+                    <tr>
+                        <td class="p-6">${index + 1}</td>
+                        <td class="p-6">${student.nama_siswa}</td>
+                        <td class="p-6">${student.nisn}</td>
+                        <td class="p-6">${student.attendance_count} kali</td>
+                        <td class="p-6">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${student.attendance_count > 0 ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'}">
+                                ${student.attendance_count > 0 ? 'Aktif' : 'Belum Hadir'}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            })
+            .catch(err => console.error('Siswa attendance fetch error:', err));
+        }
+
+        function openAbsen() {
+            document.getElementById('modal-container').classList.remove('hidden');
+            // Load draft from localStorage
+            const draft = JSON.parse(localStorage.getItem('jurnal-draft') || '{}');
+            document.getElementById('modal-content').innerHTML = `
+                <h2 class="text-2xl font-black mb-4">Input Jurnal Kelas</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400">MATERI POKOK</label>
+                        <input type="text" id="materi" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-[#1f8a4a]" placeholder="Contoh: Pengenalan JavaScript" value="${draft.materi || ''}">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="p-4 bg-green-50 rounded-2xl text-center">
+                            <p class="text-[10px] font-bold text-green-600">HADIR</p>
+                            <input type="number" id="hadir" class="w-full bg-transparent text-center font-black text-xl outline-none" value="${draft.hadir || '32'}">
+                        </div>
+                        <div class="p-4 bg-red-50 rounded-2xl text-center">
+                            <p class="text-[10px] font-bold text-red-600">ABSEN</p>
+                            <input type="number" id="absen" onchange="checkAbsen()" class="w-full bg-transparent text-center font-black text-xl outline-none" value="${draft.absen || '0'}">
+                        </div>
+                    </div>
+                    <div id="whacenter-btn" class="hidden">
+                        <button onclick="sendWhacenter()" class="w-full py-2 bg-blue-500 text-white font-semibold rounded-lg">Kirim Pesan ke Ortu (Whacenter)</button>
+                    </div>
+                    <button onclick="saveJurnal()" class="w-full py-4 bg-[#1f8a4a] text-white font-black rounded-[1.5rem] shadow-lg shadow-green-100">SIMPAN & UPDATE YAYASAN</button>
+                </div>
+            `;
+            checkAbsen();
+        }
+
+        function saveJurnal() {
+            const materi = document.getElementById('materi').value;
+            const hadir = document.getElementById('hadir').value;
+            const absen = document.getElementById('absen').value;
+            // Save draft to localStorage
+            localStorage.setItem('jurnal-draft', JSON.stringify({ materi, hadir, absen }));
+            // Send to DB
+            fetch('/api/save-jurnal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ materi, hadir, absen })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Clear draft
+                    localStorage.removeItem('jurnal-draft');
+                    sendActivityLog('jurnal_saved');
+                    // Update points
+                    const currentPoints = parseInt(document.getElementById('user-points').innerText) + 10;
+                    document.getElementById('user-points').innerText = currentPoints;
+                    alert("Berhasil! +10 Poin Reputasi Guru. Data tersimpan.");
+                    closeModal();
+                }
+            });
+        }
+
+        function initCanvas() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#1f8a4a';
+            ctx.fillRect(0, 0, 400, 300);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText('ID Studio Canvas', 150, 150);
+        }
+
+        function saveDesign() {
+            sendActivityLog('design_saved');
+            // Add points
+            const currentPoints = parseInt(document.getElementById('user-points').innerText) + 25;
+            document.getElementById('user-points').innerText = currentPoints;
+            alert("Desain disimpan! +25 Poin.");
+        }
+
+        function loadGrades() {
+            fetch('/api/students-by-class', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(students => {
+                const tbody = document.getElementById('grades-body');
+                tbody.innerHTML = '';
+                students.forEach((student, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="p-6">${index + 1}</td>
+                        <td class="p-6">${student.nama_siswa}</td>
+                        <td class="p-6"><input type="number" class="w-full p-2 border rounded" data-student="${student.id}" data-type="UTS" min="0" max="100"></td>
+                        <td class="p-6"><input type="number" class="w-full p-2 border rounded" data-student="${student.id}" data-type="UAS" min="0" max="100"></td>
+                        <td class="p-6"><input type="number" class="w-full p-2 border rounded" data-student="${student.id}" data-type="Tugas" min="0" max="100"></td>
+                        <td class="p-6"><input type="number" class="w-full p-2 border rounded" data-student="${student.id}" data-type="UH" min="0" max="100"></td>
+                        <td class="p-6"><input type="number" class="w-full p-2 border rounded" data-student="${student.id}" data-type="Raport" min="0" max="100"></td>
+                    `;
+                    tbody.appendChild(row);
+                });
+                // Load existing grades
+                const subject = document.getElementById('subject-select').value;
+                loadExistingGrades(subject);
+            })
+            .catch(err => console.error('Load students error:', err));
+        }
+
+        function loadExistingGrades(subject) {
+            // Fetch teacher's kelas
+            fetch('/api/teacher-profile', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(profile => {
+                const kelas = profile.kelas; // Assuming added to profile
+                if (!kelas) return;
+                fetch(`/api/grades?class=${encodeURIComponent(kelas)}&subject=${encodeURIComponent(subject)}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                .then(res => res.json())
+                .then(grades => {
+                    grades.forEach(grade => {
+                        const input = document.querySelector(`input[data-student="${grade.student_id}"][data-type="${grade.grade_type}"]`);
+                        if (input) input.value = grade.score;
+                    });
+                })
+                .catch(err => console.error('Load grades error:', err));
+            });
+        }
+
+        function saveGrades() {
+            const subject = document.getElementById('subject-select').value;
+            const inputs = document.querySelectorAll('#grades-body input');
+            const grades = [];
+            inputs.forEach(input => {
+                if (input.value) {
+                    grades.push({
+                        student_id: input.dataset.student,
+                        subject: subject,
+                        grade_type: input.dataset.type,
+                        score: parseFloat(input.value)
+                    });
+                }
+            });
+            if (grades.length === 0) {
+                alert('Tidak ada nilai untuk disimpan.');
+                return;
+            }
+            fetch('/api/save-grades', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ grades })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    sendActivityLog('grades_saved');
+                    // Add points
+                    const currentPoints = parseInt(document.getElementById('user-points').innerText) + 10;
+                    document.getElementById('user-points').innerText = currentPoints;
+                    alert("Nilai berhasil disimpan! +10 Poin.");
+                }
+            })
+            .catch(err => console.error('Save grades error:', err));
+        }
+
+        function checkAbsen() {
+            const absen = parseInt(document.getElementById('absen').value) || 0;
+            document.getElementById('whacenter-btn').classList.toggle('hidden', absen === 0);
+        }
+
+        function sendWhacenter() {
+            document.getElementById('whacenter-modal').classList.remove('hidden');
+            document.getElementById('whacenter-content').innerHTML = `
+                <h2 class="text-2xl font-black mb-4">Kirim Pesan ke Ortu Siswa Alpa</h2>
+                <div class="space-y-4">
+                    <div>
+                        <label class="text-xs font-bold text-gray-400">PESAN</label>
+                        <textarea id="whacenter-message" rows="4" class="w-full p-4 bg-gray-50 rounded-2xl border-none focus:ring-2 focus:ring-[#1f8a4a]" placeholder="Tulis pesan pengingat kehadiran..."></textarea>
+                    </div>
+                    <button onclick="sendWhacenterMessage()" class="w-full py-4 bg-blue-500 text-white font-black rounded-[1.5rem] shadow-lg">KIRIM PESAN</button>
+                </div>
+            `;
+        }
+
+        function sendWhacenterMessage() {
+            const message = document.getElementById('whacenter-message').value;
+            if (!message.trim()) {
+                alert('Pesan tidak boleh kosong.');
+                return;
+            }
+            // Mock send
+            fetch('/api/send-whacenter', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ message })
+            })
+            .then(res => res.json())
+            .then(data => {
+                alert('Pesan berhasil dikirim ke orang tua siswa yang alpa.');
+                closeWhacenterModal();
+            })
+            .catch(err => {
+                alert('Gagal mengirim pesan. Pastikan integrasi Whacenter aktif.');
+                console.error('Whacenter error:', err);
+            });
+        }
+
+        function closeWhacenterModal() {
+            document.getElementById('whacenter-modal').classList.add('hidden');
+        }
+
+        function openProfileModal() {
+            document.getElementById('profile-modal').classList.remove('hidden');
+            fetch('/api/teacher-profile', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('profile-content').innerHTML = `
+                    <h2 class="text-2xl font-black mb-4">Informasi Profil</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-[#1f8a4a] rounded-xl flex items-center justify-center text-white font-bold text-xl">${data.nama ? data.nama[0].toUpperCase() : 'U'}</div>
+                            <div>
+                                <p class="font-bold">${data.nama || 'N/A'}</p>
+                                <p class="text-sm text-gray-500">${data.jabatan || 'N/A'}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4 text-sm">
+                            <div><strong>NIY:</strong> ${data.niy || 'N/A'}</div>
+                            <div><strong>NIK:</strong> ${data.nik || 'N/A'}</div>
+                            <div><strong>Jenis Kelamin:</strong> ${data.jenis_kelamin || 'N/A'}</div>
+                            <div><strong>Email:</strong> ${data.email || 'N/A'}</div>
+                            <div><strong>No WA:</strong> ${data.no_wa || 'N/A'}</div>
+                            <div><strong>Jenjang:</strong> ${data.jenjang || 'N/A'}</div>
+                        </div>
+                        <button onclick="editProfile()" class="w-full py-2 bg-gray-100 text-gray-600 rounded-lg font-semibold">Edit Profil</button>
+                    </div>
+                `;
+            })
+            .catch(err => console.error('Profile fetch error:', err));
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function editProfile() {
+            closeProfileModal();
+            window.location.href = 'complete-profile.html?teacherId=' + currentTeacherId;
+        }
+
+        // Reload grades when subject changes
+        document.addEventListener('change', (e) => {
+            if (e.target.id === 'subject-select') {
+                loadExistingGrades(e.target.value);
+            }
+        });
+
+        function uploadDocument() {
+            const fileInput = document.getElementById('document-file');
+            if (!fileInput.files[0]) {
+                alert('Pilih file terlebih dahulu.');
+                return;
+            }
+            const formData = new FormData();
+            formData.append('document', fileInput.files[0]);
+            fetch('/api/upload-document', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    sendActivityLog('document_uploaded');
+                    // Add points
+                    const currentPoints = parseInt(document.getElementById('user-points').innerText) + 5;
+                    document.getElementById('user-points').innerText = currentPoints;
+                    alert("Dokumen berhasil diupload! +5 Poin.");
+                    fileInput.value = '';
+                    loadDocuments();
+                }
+            })
+            .catch(err => console.error('Upload error:', err));
+        }
+
+        function loadDocuments() {
+            fetch('/api/documents', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(documents => {
+                const list = document.getElementById('documents-list');
+                list.innerHTML = documents.map(doc => `
+                    <div class="p-4 bg-gray-50 rounded-xl flex justify-between items-center">
+                        <div>
+                            <p class="font-bold">${doc.original_name}</p>
+                            <p class="text-sm text-gray-500">${(doc.file_size / 1024).toFixed(2)} KB • ${new Date(doc.upload_date).toLocaleDateString()}</p>
+                        </div>
+                        <button onclick="downloadDocument(${doc.id})" class="text-[#1f8a4a] hover:underline">Download</button>
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error('Load documents error:', err));
+        }
+
+        function downloadDocument(id) {
+            window.open(`/api/download-document/${id}`, '_blank');
+        }
+
+        // Pengajuan Izin/Sakit
+        document.addEventListener('submit', function(e) {
+            if (e.target.id === 'pengajuan-form') {
+                e.preventDefault();
+                const pengajuan = {
+                    alasan: document.getElementById('alasan').value,
+                    tanggal_mulai: document.getElementById('tgl-mulai').value,
+                    tanggal_akhir: document.getElementById('tgl-akhir').value,
+                    keterangan: document.getElementById('jenis-pengajuan').value
+                };
+                
+                fetch('/api/attendance-request', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(pengajuan)
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('Pengajuan berhasil dikirim! Menunggu persetujuan.');
+                        renderRoute('riwayat-izin');
+                    } else {
+                        alert('Gagal: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(err => alert('Error: ' + err.message));
+            }
+        });
+
+        function loadRiwayatPengajuan() {
+            fetch('/api/attendance-requests', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                const list = document.getElementById('riwayat-list');
+                if (data.length === 0) {
+                    list.innerHTML = '<div class="text-center py-8 text-gray-400">Belum ada pengajuan</div>';
+                    return;
+                }
+                list.innerHTML = data.map(p => `
+                    <div class="p-4 border rounded-xl ${p.status === 'approved' ? 'bg-green-50 border-green-200' : p.status === 'rejected' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <span class="px-2 py-1 rounded text-xs font-bold ${p.status === 'approved' ? 'bg-green-500 text-white' : p.status === 'rejected' ? 'bg-red-500 text-white' : 'bg-yellow-500 text-white'}">
+                                    ${p.status === 'pending' ? 'Menunggu' : p.status === 'approved' ? 'Disetujui' : 'Ditolak'}
+                                </span>
+                                <p class="font-bold mt-2">${p.alasan}</p>
+                                <p class="text-sm text-gray-500">${new Date(p.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(p.tanggal_akhir).toLocaleDateString('id-ID')}</p>
+                            </div>
+                        </div>
+                        ${p.catatan ? `<p class="mt-2 text-sm text-gray-600"><i class="bi bi-chat-dots me-1"></i>${p.catatan}</p>` : ''}
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error(err));
+        }
+
+        function openJadwal() {
+            alert("Jadwal: 07:30-09:00 Informatika X-IPA 1");
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('aside');
+            sidebar.classList.toggle('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modal-container').classList.add('hidden');
+        }
+
+        // INITIALIZE
+        window.onload = () => {
+            renderRoute('dashboard');
+        };
+
+        // Activity log function
+        function sendActivityLog(activityType) {
+            fetch('/api/activity-log', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ activity: activityType })
+            }).catch(err => console.error('Activity log error:', err));
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('tenant');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Complete Profile Debug Console</title>
+    <style>
+        body { font-family: monospace; margin: 20px; }
+        .log-container { background: #f5f5f5; padding: 10px; border: 1px solid #ccc; max-height: 400px; overflow-y: auto; }
+        .log-entry { margin: 5px 0; padding: 5px; border-left: 3px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        .warning { border-left-color: #ffc107; background: #fff3cd; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        .controls { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Complete Profile Debug Console</h1>
+
+    <div class="controls">
+        <button onclick="clearLogs()">Clear Logs</button>
+        <button onclick="openCompleteProfile()">Open Complete Profile</button>
+        <button onclick="testAPI()">Test API Directly</button>
+    </div>
+
+    <div class="log-container" id="logContainer">
+        <div class="log-entry">Debug console initialized at <span id="timestamp"></span></div>
+    </div>
+
+    <script>
+        const logContainer = document.getElementById('logContainer');
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        const originalConsoleWarn = console.warn;
+
+        // Override console methods to capture logs
+        console.log = function(...args) {
+            addLog('log', args.join(' '));
+            originalConsoleLog.apply(console, args);
+        };
+
+        console.error = function(...args) {
+            addLog('error', args.join(' '));
+            originalConsoleError.apply(console, args);
+        };
+
+        console.warn = function(...args) {
+            addLog('warning', args.join(' '));
+            originalConsoleWarn.apply(console, args);
+        };
+
+        function addLog(type, message) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `<strong>[${new Date().toLocaleTimeString()}]</strong> ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function clearLogs() {
+            logContainer.innerHTML = '<div class="log-entry">Logs cleared at ' + new Date().toLocaleString() + '</div>';
+        }
+
+        function openCompleteProfile() {
+            const teacherId = prompt('Enter Teacher ID:', '995');
+            if (teacherId) {
+                window.open(`/complete-profile.html?teacherId=${teacherId}`, '_blank');
+            }
+        }
+
+        async function testAPI() {
+            const teacherId = prompt('Enter Teacher ID to test API:', '995');
+            if (!teacherId) return;
+
+            addLog('log', `Testing API for teacher ID: ${teacherId}`);
+
+            try {
+                const response = await fetch(`/api/teacher-data/${teacherId}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    addLog('success', `API call successful: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    addLog('error', `API call failed: ${response.status} - ${JSON.stringify(data)}`);
+                }
+            } catch (error) {
+                addLog('error', `API call error: ${error.message}`);
+            }
+        }
+
+        // Initialize timestamp
+        document.getElementById('timestamp').textContent = new Date().toLocaleString();
+
+        console.log('=== DEBUG CONSOLE INITIALIZED ===');
+        console.log('Ready to capture logs from complete-profile.html');
+        console.log('Click "Open Complete Profile" to test with logging enabled');
+    </script>
+</body>
+</html>

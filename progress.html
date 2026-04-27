@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Progress Data - YPWI Luwu Timur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1f8a4a',
+                        secondary: '#93d5f4',
+                        accent: '#eae830',
+                        dark: '#0f172a'
+                    },
+                    fontFamily: {
+                        plus: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = window.tailwind.config || {};
+        window.tailwind.config.disableProductionWarning = true;
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .gradient-bg { background: linear-gradient(135deg, #1f8a4a 0%, #93d5f4 100%); }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+
+    <!-- Navbar -->
+    <nav class="gradient-bg shadow-xl">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <a href="login.html" class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                        <i class="bi bi-mortarboard text-white text-xl"></i>
+                    </div>
+                    <span class="text-2xl font-extrabold text-white">YPWI <span class="text-accent">LUTIM</span></span>
+                </a>
+                <div class="flex items-center gap-4">
+                    <a href="login.html" class="flex items-center gap-2 px-5 py-2 bg-white/20 hover:bg-white/30 rounded-xl text-white font-semibold transition">
+                        <i class="bi bi-arrow-left"></i> Kembali
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto p-6">
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2">Progress Pengisian Data</h1>
+        <p class="text-gray-500 mb-8">Klik pada unit sekolah untuk melihat detail progress guru</p>
+
+        <!-- Overall Stats -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <p class="text-3xl font-black text-blue-600" id="total-units">0</p>
+                <p class="text-sm text-gray-500">Unit Sekolah</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <p class="text-3xl font-black text-green-600" id="total-guru">0</p>
+                <p class="text-sm text-gray-500">Total Guru</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <p class="text-3xl font-black text-primary" id="complete-profiles">0</p>
+                <p class="text-sm text-gray-500">Profil Lengkap</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-4 text-center">
+                <p class="text-3xl font-black text-red-500" id="incomplete-profiles">0</p>
+                <p class="text-sm text-gray-500">Belum Lengkap</p>
+            </div>
+        </div>
+
+        <!-- Unit Cards Grid -->
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Daftar Unit Sekolah</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8" id="unit-grid">
+            <!-- Will be populated by JS -->
+        </div>
+
+        <!-- Bulk Reminder Section -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-800">Pengingat Massal via WhatsApp</h2>
+                    <p class="text-sm text-gray-500">Kirim pengingat ke semua guru yang profilnya belum lengkap (delay 10 detik/pesan)</p>
+                </div>
+                <button onclick="sendBulkReminder()" id="bulk-btn" class="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition flex items-center gap-2">
+                    <i class="bi bi-send"></i> Kirim Massal
+                </button>
+            </div>
+            <div id="bulk-status" class="hidden p-4 rounded-xl bg-gray-50">
+                <div class="flex items-center gap-3 mb-2">
+                    <div id="bulk-spinner" class="animate-spin w-5 h-5 border-2 border-primary border-t-transparent rounded-full"></div>
+                    <span id="bulk-message" class="text-gray-700">Mengirim...</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div id="bulk-progress" class="bg-primary h-2 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Teacher List -->
+    <div id="teacher-modal" class="fixed inset-0 bg-black/50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-4xl max-h-[90vh] rounded-2xl overflow-hidden">
+            <div class="gradient-bg p-6 flex items-center justify-between">
+                <div>
+                    <h2 class="text-xl font-bold text-white" id="modal-unit-name">Unit Name</h2>
+                    <p class="text-white/80 text-sm" id="modal-unit-stats">0/0 guru lengkap</p>
+                </div>
+                <button onclick="closeModal()" class="text-white/80 hover:text-white">
+                    <i class="bi bi-x-lg text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 sticky top-0">
+                        <tr>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">No</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Nama</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Jabatan</th>
+                            <th class="px-3 py-2 text-left font-semibold text-gray-600">Sebagai</th>
+                            <th class="px-3 py-2 text-center font-semibold text-gray-600">%</th>
+                            <th class="px-3 py-2 text-center font-semibold text-gray-600">Status</th>
+                            <th class="px-3 py-2 text-center font-semibold text-gray-600">WA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="teacher-list">
+                        <!-- Will be populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="p-4 border-t bg-gray-50 flex justify-between items-center">
+                <button onclick="sendBulkToUnit()" id="bulk-unit-btn" class="bg-primary text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700 transition text-sm">
+                    <i class="bi bi-whatsapp"></i> Kirim Semua Belum Lengkap
+                </button>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700 font-semibold">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allUnits = [];
+        let allTeachers = [];
+        let currentModalUnit = '';
+        
+        // Dynamic domain based on current location
+        const BASE_URL = window.location.origin;
+
+        // Core required fields - these must be filled
+        const coreRequiredFields = ['nama', 'jenis_kelamin', 'jenjang', 'jabatan', 'sebagai', 'status_kepegawaian', 'status_aktif'];
+
+        // Optional fields - nice to have but not critical for progress calculation
+        const optionalFields = ['niy', 'nik', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'no_wa', 'email', 'tmt', 'keterangan', 'link_foto'];
+
+        // Combined for compatibility
+        const requiredFields = [...coreRequiredFields, ...optionalFields];
+
+        function getFieldCompletion(teacher) {
+            let coreFilled = 0;
+            let optionalFilled = 0;
+            let missing = [];
+
+            // Check core required fields (must be filled - 70% weight)
+            coreRequiredFields.forEach(field => {
+                const value = teacher[field];
+                if (value !== null && value !== undefined && value.toString().trim() !== '') {
+                    coreFilled++;
+                } else {
+                    missing.push(field);
+                }
+            });
+
+            // Check optional fields (bonus points - 30% weight)
+            optionalFields.forEach(field => {
+                const value = teacher[field];
+                if (value !== null && value !== undefined && value.toString().trim() !== '') {
+                    optionalFilled++;
+                }
+            });
+
+            // Calculate weighted progress
+            const coreProgress = (coreFilled / coreRequiredFields.length) * 70;
+            const optionalProgress = (optionalFilled / optionalFields.length) * 30;
+            const totalProgress = coreProgress + optionalProgress;
+
+            // Debug: log first teacher
+            if (teacher.nama && !window.debugged) {
+                console.log('Sample teacher:', teacher.nama,
+                           'Core filled:', coreFilled, '/', coreRequiredFields.length,
+                           'Optional filled:', optionalFilled, '/', optionalFields.length,
+                           'Total progress:', Math.round(totalProgress) + '%',
+                           'Missing core:', missing);
+                window.debugged = true;
+            }
+
+            return Math.round(totalProgress);
+        }
+
+        function isProfileComplete(teacher) {
+            // Profile is complete if all core required fields are filled
+            // Optional fields are nice to have but not required for completion
+            return coreRequiredFields.every(field => {
+                const value = teacher[field];
+                return value !== null && value !== undefined && value.toString().trim() !== '';
+            });
+        }
+
+        async function loadProgress() {
+            try {
+                console.log('Loading progress...');
+                
+                const [tenantRes, teacherRes] = await Promise.all([
+                    fetch('/api/tenants'),
+                    fetch('/api/all-teachers')
+                ]);
+                
+                console.log('Tenant status:', tenantRes.status);
+                console.log('Teacher status:', teacherRes.status);
+                
+                if (!tenantRes.ok || !teacherRes.ok) {
+                    throw new Error(`API error: tenants=${tenantRes.status}, teachers=${teacherRes.status}`);
+                }
+                
+                allUnits = await tenantRes.json();
+                allTeachers = await teacherRes.json();
+                
+                console.log('Units:', allUnits.length);
+                console.log('Teachers:', allTeachers.length);
+                console.log('First teacher sample:', allTeachers[0]);
+
+                // Stats
+                const totalGuru = allTeachers.length;
+                const completeProfiles = allTeachers.filter(t => isProfileComplete(t)).length;
+                
+                document.getElementById('total-units').textContent = allUnits.length;
+                document.getElementById('total-guru').textContent = totalGuru;
+                document.getElementById('complete-profiles').textContent = completeProfiles;
+                document.getElementById('incomplete-profiles').textContent = totalGuru - completeProfiles;
+
+                // Render unit cards
+                renderUnitCards();
+            } catch (err) {
+                console.error('Error loading progress:', err);
+                document.getElementById('unit-grid').innerHTML = '<p class="text-red-500 col-span-full text-center">Gagal memuat data. Pastikan sudah login.</p>';
+            }
+        }
+
+        function renderUnitCards() {
+            const container = document.getElementById('unit-grid');
+            
+            container.innerHTML = allUnits.map(tenant => {
+                const unitTeachers = allTeachers.filter(t => t.tenant_id === tenant.code);
+                const total = unitTeachers.length;
+                
+                // Calculate average completion percentage across all teachers
+                const totalCompletion = unitTeachers.reduce((sum, t) => sum + getFieldCompletion(t), 0);
+                const percentage = total > 0 ? Math.round(totalCompletion / total) : 0;
+                
+                // Count fully complete (100%)
+                const complete = unitTeachers.filter(t => isProfileComplete(t)).length;
+                
+                let color = 'red';
+                let bgColor = 'bg-red-100';
+                let textColor = 'text-red-600';
+                if (percentage >= 80) { color = 'green'; bgColor = 'bg-green-100'; textColor = 'text-green-600'; }
+                else if (percentage >= 50) { color = 'yellow'; bgColor = 'bg-yellow-100'; textColor = 'text-yellow-600'; }
+
+                return `
+                    <div onclick="showTeacherList('${tenant.code}')" 
+                        class="bg-white rounded-xl shadow-lg p-5 cursor-pointer hover:shadow-xl hover:scale-[1.02] transition border-l-4 border-${color}-500">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-bold text-gray-800 text-sm line-clamp-2">${tenant.name}</h3>
+                            <span class="text-2xl font-black ${textColor}">${percentage}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mb-3">
+                            <div class="bg-${color}-500 h-2 rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>${complete}/${total} guru</span>
+                            <span class="${complete === total ? 'text-green-600 font-bold' : ''}">${complete === total ? '✓ Lengkap' : 'Belum'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function showTeacherList(unitCode) {
+            currentModalUnit = unitCode;
+            const unit = allUnits.find(u => u.code === unitCode);
+            const unitTeachers = allTeachers.filter(t => t.tenant_id === unitCode);
+            const complete = unitTeachers.filter(t => isProfileComplete(t)).length;
+
+            document.getElementById('modal-unit-name').textContent = unit.name;
+            document.getElementById('modal-unit-stats').textContent = `${complete}/${unitTeachers.length} guru lengkap`;
+
+            const tbody = document.getElementById('teacher-list');
+            tbody.innerHTML = unitTeachers.map((teacher, idx) => {
+                const pct = getFieldCompletion(teacher);
+                const complete = isProfileComplete(teacher);
+                
+                let color = 'red';
+                if (pct >= 80) color = 'green';
+                else if (pct >= 50) color = 'yellow';
+
+                return `
+                    <tr class="border-b hover:bg-gray-50">
+                        <td class="px-3 py-2 text-gray-500">${idx + 1}</td>
+                        <td class="px-3 py-2 font-medium text-gray-800">${teacher.nama || '-'}</td>
+                        <td class="px-3 py-2 text-gray-600 text-xs">${teacher.jabatan || '-'}</td>
+                        <td class="px-3 py-2 text-gray-600 text-xs">${teacher.sebagai || '-'}</td>
+                        <td class="px-3 py-2 text-center">
+                            <span class="inline-block w-12 px-2 py-1 rounded-full text-xs font-bold bg-${color}-100 text-${color}-600">
+                                ${pct}%
+                            </span>
+                        </td>
+                        <td class="px-3 py-2 text-center">
+                            ${complete 
+                                ? '<span class="text-green-600"><i class="bi bi-check-circle-fill"></i></span>' 
+                                : '<span class="text-red-500"><i class="bi bi-exclamation-circle-fill"></i></span>'}
+                        </td>
+                        <td class="px-3 py-2 text-center">
+                            ${!complete && teacher.no_wa 
+                                ? `<button onclick="event.stopPropagation(); sendSingleReminder('${teacher.id}', '${teacher.nama}', '${teacher.no_wa}')" 
+                                    class="text-green-600 hover:text-green-800"><i class="bi bi-whatsapp"></i></button>` 
+                                : '-'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            document.getElementById('teacher-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('teacher-modal').classList.add('hidden');
+        }
+
+        async function sendSingleReminder(teacherId, nama, noWa) {
+            if (!noWa) { alert('Nomor WA tidak tersedia'); return; }
+
+            const msg = `🕌 *Assalamu'alaikum Warahmatullahi Wabarakatuh* 🕌\n\nBapak/Ibu ${nama} yang terhormat,\n\n*Dengan hormat,* kami dari YPWI Luwu Timur mengundang Bapak/Ibu untuk melengkapi data profil di sistem kami.\n\n📝 *Mohon klik link berikut untuk melengkapi profil:*\n${BASE_URL}/complete-profile.html?teacherId=${teacherId}\n\n✨ Profil yang lengkap akan memudahkan koordinasi dan komunikasi dalam membangun generasi beriman dan berilmu.\n\nSemoga Allah SWT senantiasa memberikan kemudahan dan kelancaran dalam setiap amal ibadah kita.\n\n*آمين يارب العالمين* 🤲\n\n*Wassalamu'alaikum Warahmatullahi Wabarakatuh* ✨\n\n*YPWI Luwu Timur*\n*Pembina Generasi Beriman & Berilmu* 📖`;
+
+            try {
+                const res = await fetch('/api/send-whatsapp', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ number: noWa, message: msg })
+                });
+                const data = await res.json();
+                alert(data.success ? `Pengingat dikirim ke ${nama}` : 'Gagal: ' + data.error);
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function sendBulkToUnit() {
+            const unitTeachers = allTeachers.filter(t => t.tenant_id === currentModalUnit && !isProfileComplete(t) && t.no_wa);
+            if (unitTeachers.length === 0) { alert('Semua profil sudah lengkap!'); return; }
+            
+            if (!confirm(`Kirim ke ${unitTeachers.length} guru di unit ini?`)) return;
+
+            document.getElementById('bulk-unit-btn').disabled = true;
+            let sent = 0;
+
+            for (const teacher of unitTeachers) {
+                const msg = `🕌 *Assalamu'alaikum Warahmatullahi Wabarakatuh* 🕌\n\nBapak/Ibu ${teacher.nama} yang terhormat,\n\n*Dengan hormat,* kami dari YPWI Luwu Timur mengundang Bapak/Ibu untuk melengkapi data profil di sistem kami.\n\n📝 *Mohon klik link berikut untuk melengkapi profil:*\n${BASE_URL}/complete-profile.html?teacherId=${teacher.id}\n\n✨ Profil yang lengkap akan memudahkan koordinasi dan komunikasi dalam membangun generasi beriman dan berilmu.\n\nSemoga Allah SWT senantiasa memberikan kemudahan dan kelancaran dalam setiap amal ibadah kita.\n\n*آمين يارب العالمين* 🤲\n\n*Wassalamu'alaikum Warahmatullahi Wabarakatuh* ✨\n\n*YPWI Luwu Timur*\n*Pembina Generasi Beriman & Berilmu* 📖`;
+
+                try {
+                    await fetch('/api/send-whatsapp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ number: teacher.no_wa, message: msg })
+                    });
+                } catch (e) { console.error(e); }
+                
+                sent++;
+                document.getElementById('modal-unit-stats').textContent = `Mengirim ${sent}/${unitTeachers.length}...`;
+                if (sent < unitTeachers.length) await new Promise(r => setTimeout(r, getRandomDelay()));
+            }
+
+            document.getElementById('bulk-unit-btn').disabled = false;
+            alert(`Selesai! ${sent} pesan terkirim.`);
+            showTeacherList(currentModalUnit);
+        }
+
+        // Random delay helper (5-10 detik) untuk hindari banned
+        function getRandomDelay() {
+            return Math.floor(Math.random() * 6000) + 5000; // 5000-11000ms
+        }
+
+        async function sendBulkReminder() {
+            const incomplete = allTeachers.filter(t => !isProfileComplete(t) && t.no_wa);
+            if (incomplete.length === 0) { alert('Semua profil sudah lengkap!'); return; }
+            if (!confirm(`Kirim ke ${incomplete.length} guru?`)) return;
+
+            document.getElementById('bulk-status').classList.remove('hidden');
+            document.getElementById('bulk-btn').disabled = true;
+
+            let sent = 0;
+            for (const teacher of incomplete) {
+                const msg = `🕌 *Assalamu'alaikum Warahmatullahi Wabarakatuh* 🕌\n\nBapak/Ibu ${teacher.nama} yang terhormat,\n\n*Dengan hormat,* kami dari YPWI Luwu Timur mengundang Bapak/Ibu untuk melengkapi data profil di sistem kami.\n\n📝 *Mohon klik link berikut untuk melengkapi profil:*\n${BASE_URL}/complete-profile.html?teacherId=${teacher.id}\n\n✨ Profil yang lengkap akan memudahkan koordinasi dan komunikasi dalam membangun generasi beriman dan berilmu.\n\nSemoga Allah SWT senantiasa memberikan kemudahan dan kelancaran dalam setiap amal ibadah kita.\n\n*آمين يارب العالمين* 🤲\n\n*Wassalamu'alaikum Warahmatullahi Wabarakatuh* ✨\n\n*YPWI Luwu Timur*\n*Pembina Generasi Beriman & Berilmu* 📖`;
+
+                try {
+                    await fetch('/api/send-whatsapp', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ number: teacher.no_wa, message: msg })
+                    });
+                } catch (e) { console.error(e); }
+
+                sent++;
+                document.getElementById('bulk-progress').style.width = (sent/incomplete.length*100) + '%';
+                document.getElementById('bulk-message').textContent = `Mengirim ${sent}/${incomplete.length}...`;
+                if (sent < incomplete.length) await new Promise(r => setTimeout(r, getRandomDelay()));
+            }
+
+            document.getElementById('bulk-message').textContent = `Selesai! ${sent} terkirim.`;
+            document.getElementById('bulk-btn').disabled = false;
+        }
+
+        window.onload = loadProgress;
+    </script>
+</body>
+</html>

@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPWI Kepala Sekolah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f9ff; }
+        .active-link { background: #1f8a4a; color: white; border-radius: 1rem; }
+        .nav-item:not(.active-link):hover { background-color: #f9fafb; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(31, 138, 74, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen z-50 hidden md:block relative">
+        <button onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 text-gray-600 hover:text-gray-800 z-10"><i class="bi bi-x-lg text-xl"></i></button>
+        <div class="p-8 border-b border-gray-50 text-center">
+            <img src="../../assets/images/YPWI LOGO HITAM.png" alt="YPWI" height="35" class="mx-auto mb-2">
+            <h1 class="text-xl font-black text-[#1f8a4a]">YPWI <span class="text-[#93d5f4]">KEPS</span></h1>
+            <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em]">KEPALA SEKOLAH</p>
+        </div>
+
+        <nav class="flex-1 p-6 space-y-6 overflow-y-auto">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Dashboard</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('overview')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-grid-1x2-fill"></i> Overview
+                    </button>
+                    <button onclick="renderRoute('absensi')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-qr-code-scan"></i> Absensi
+                    </button>
+                </div>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Akademik</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('guru')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-person-badge"></i> Data Guru
+                    </button>
+                    <button onclick="renderRoute('siswa')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-people-fill"></i> Data Siswa
+                    </button>
+                    <button onclick="renderRoute('jadwal')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-calendar-week"></i> Jadwal
+                    </button>
+                </div>
+            </div>
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Laporan</p>
+                <div class="space-y-1">
+                    ${isKetuaYayasan ? `
+                    <button onclick="renderRoute('progress')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-bar-chart-fill"></i> Progress Data Guru
+                    </button>
+                    ` : ''}
+                    <button onclick="renderRoute('keuangan')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-cash-stack"></i> Keuangan
+                    </button>
+                    <button onclick="renderRoute('rapor')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-file-earmark-text"></i> Rapor
+                    </button>
+                    <button onclick="renderRoute('pengajuan')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-envelope-check"></i> Pengajuan Izin
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-6 bg-gray-50 m-4 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-green-600 rounded-xl flex items-center justify-center text-white font-bold" id="userInitial">K</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-gray-800 truncate" id="userName">Kepala Sekolah</p>
+                    <p class="text-[10px] text-gray-400" id="userUnit">YPWI System</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="bg-white/80 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-600"><i class="bi bi-list"></i></button>
+                <h2 id="page-title" class="text-xl font-extrabold text-gray-800">Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="text-gray-400 hover:text-gray-600"><i class="bi bi-bell"></i></button>
+                <button onclick="logout()" class="text-gray-400 hover:text-gray-600"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
+        </header>
+
+        <div id="app-viewport" class="p-8 overflow-y-auto max-h-[calc(100vh-80px)]"></div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const tenant = localStorage.getItem('tenant');
+        const role = localStorage.getItem('role') || '';
+        const isKetuaYayasan = role === 'KetuaYayasan';
+
+        if (!token) { window.location.href = '/login.html'; }
+
+        document.getElementById('userName').textContent = localStorage.getItem('userName') || (isKetuaYayasan ? 'Ketua Yayasan' : 'Kepala Sekolah');
+        document.getElementById('userInitial').textContent = (localStorage.getItem('userName') || (isKetuaYayasan ? 'K' : 'K'))[0].toUpperCase();
+
+        // Update header for Ketua Yayasan
+        if (isKetuaYayasan) {
+            document.querySelector('h1').innerHTML = 'YPWI <span class="text-[#93d5f4]">KETUA</span>';
+            document.querySelector('p[class*="text-gray-400"]').textContent = 'KETUA YAYASAN';
+        }
+
+        async function loadStats() {
+            const today = new Date().toISOString().split('T')[0];
+
+            const [guruRes, absensiRes] = await Promise.all([
+                fetch('/api/all-teachers'),
+                fetch(`/api/attendance-report?bulan=${today.substring(5,7)}&tahun=${today.substring(0,4)}&unit=${isKetuaYayasan ? 'all' : tenant}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+
+            const guru = await guruRes.json();
+            const absensi = await absensiRes.json();
+
+            // For Ketua Yayasan, show ALL units data
+            const guruFiltered = isKetuaYayasan ? guru : guru.filter(g => g.tenant_id === tenant);
+            const absensiHariIni = absensi.filter(a => a.tanggal === today);
+
+            return {
+                totalGuru: guruFiltered.length,
+                absensiHariIni: absensiHariIni.length,
+                isKetuaYayasan,
+                allUnits: isKetuaYayasan
+            };
+        }
+
+        function renderRoute(route) {
+            const viewport = document.getElementById('app-viewport');
+            const title = document.getElementById('page-title');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-link', 'text-white'));
+            const activeBtn = document.querySelector(`button[onclick="renderRoute('${route}')"]`);
+            if (activeBtn) activeBtn.classList.add('active-link', 'text-white');
+
+            let html = '';
+            switch(route) {
+                case 'overview':
+                    title.innerText = "Overview";
+                    html = `<div id="overview-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'absensi':
+                    title.innerText = "Absensi";
+                    html = `<div class="bg-white rounded-3xl card-shadow p-8"><h3 class="text-xl font-bold mb-4">QR Scanner Absensi</h3><p class="text-gray-500 mb-4">Akses scanner untuk melakukan absensi.</p><a href="../../absensi/absensi.html" class="bg-green-600 text-white px-6 py-3 rounded-xl inline-block">Buka Scanner</a></div>`;
+                    break;
+                case 'guru':
+                    title.innerText = "Data Guru";
+                    html = `<div id="guru-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'siswa':
+                    title.innerText = "Data Siswa";
+                    html = `<div id="siswa-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'jadwal':
+                    title.innerText = "Jadwal";
+                    html = `<div class="bg-white rounded-3xl card-shadow p-8"><h3 class="text-xl font-bold mb-4">Jadwal Pelajaran</h3><p class="text-gray-500">Jadwal akan ditampilkan di sini.</p></div>`;
+                    break;
+                case 'keuangan':
+                    title.innerText = "Keuangan";
+                    html = `<div class="bg-white rounded-3xl card-shadow p-8"><h3 class="text-xl font-bold mb-4">Laporan Keuangan</h3><p class="text-gray-500">Laporan keuangan akan ditampilkan di sini.</p></div>`;
+                    break;
+                case 'rapor':
+                    title.innerText = "Rapor";
+                    html = `<div class="bg-white rounded-3xl card-shadow p-8"><h3 class="text-xl font-bold mb-4">Rapor Siswa</h3><p class="text-gray-500">Rapor siswa akan ditampilkan di sini.</p></div>`;
+                    break;
+                case 'pengajuan':
+                    title.innerText = "Pengajuan Izin/Sakit";
+                    html = `<div id="pengajuan-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'progress':
+                    title.innerText = "Progress Data Guru";
+                    html = `<div id="progress-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+            }
+            viewport.innerHTML = html;
+
+            if (route === 'overview') loadOverview();
+            if (route === 'guru') loadGuru();
+            if (route === 'siswa') loadSiswa();
+            if (route === 'pengajuan') loadPengajuan();
+            if (route === 'progress') loadProgress();
+        }
+
+        async function loadOverview() {
+            const stats = await loadStats();
+            const dashboardTitle = stats.isKetuaYayasan ? 'Dashboard Ketua Yayasan' : 'Dashboard Kepala Sekolah';
+            const unitInfo = stats.isKetuaYayasan ? 'Semua Unit Sekolah YPWI' : `Unit: ${tenant}`;
+
+            document.getElementById('overview-content').innerHTML = `
+                <div class="bg-gradient-to-r from-green-600 to-green-800 p-10 rounded-[3rem] text-white card-shadow mb-8">
+                    <h1 class="text-3xl font-black mb-2 italic">${dashboardTitle}</h1>
+                    <p class="opacity-80 text-sm">Pantau kinerja sekolah secara real-time.</p>
+                    <p class="text-sm opacity-60 mt-2">${unitInfo}</p>
+                    ${stats.isKetuaYayasan ? '<div class="mt-4 px-4 py-2 bg-yellow-500/20 rounded-lg border border-yellow-400/50"><i class="bi bi-star-fill text-yellow-400 mr-2"></i><span class="text-yellow-100 text-sm font-semibold">Anda memiliki akses ke semua data unit sekolah</span></div>' : ''}
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-people text-blue-600 text-xl"></i>
+                        </div>
+                        <p class="text-3xl font-black text-gray-800">0</p>
+                        <p class="text-sm text-gray-500">Total Siswa ${stats.isKetuaYayasan ? 'Semua Unit' : ''}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-person-badge text-green-600 text-xl"></i>
+                        </div>
+                        <p class="text-3xl font-black text-gray-800">${stats.totalGuru}</p>
+                        <p class="text-sm text-gray-500">Total Guru ${stats.isKetuaYayasan ? 'Semua Unit' : ''}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-check-circle text-purple-600 text-xl"></i>
+                        </div>
+                        <p class="text-3xl font-black text-gray-800">${stats.totalGuru > 0 ? Math.round((stats.absensiHariIni / stats.totalGuru) * 100) : 0}%</p>
+                        <p class="text-sm text-gray-500">Kehadiran Hari Ini ${stats.isKetuaYayasan ? 'Semua Unit' : ''}</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-cash text-yellow-600 text-xl"></i>
+                        </div>
+                        <p class="text-2xl font-black text-gray-800">-</p>
+                        <p class="text-sm text-gray-500">Pendapatan Bulan Ini</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                    <div class="bg-white rounded-2xl card-shadow p-6">
+                        <h3 class="font-bold text-lg mb-4">Absensi Terbaru ${stats.isKetuaYayasan ? 'Semua Unit' : ''}</h3>
+                        <p class="text-gray-500 text-center py-4">${stats.absensiHariIni} absensi hari ini</p>
+                    </div>
+                    <div class="bg-white rounded-2xl card-shadow p-6">
+                        <h3 class="font-bold text-lg mb-4">Pengumuman</h3>
+                        <p class="text-gray-500 text-center py-4">Belum ada pengumuman</p>
+                    </div>
+                </div>`;
+        }
+
+        async function loadGuru() {
+            const res = await fetch('/api/all-teachers');
+            const allGuru = await res.json();
+            const guru = isKetuaYayasan ? allGuru : allGuru.filter(g => g.tenant_id === tenant);
+
+            document.getElementById('guru-content').innerHTML = `
+                <div class="bg-white rounded-3xl card-shadow p-8">
+                    <h3 class="text-xl font-bold mb-6">
+                        Daftar Guru ${isKetuaYayasan ? 'Semua Unit' : ''}
+                        ${isKetuaYayasan ? '<span class="text-sm text-gray-500 font-normal">(Ketua Yayasan - Akses Semua Unit)</span>' : ''}
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    ${isKetuaYayasan ? '<th class="p-3">Unit</th>' : ''}
+                                    <th class="p-3">NIY</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Jabatan</th>
+                                    <th class="p-3">Sebagai</th>
+                                    <th class="p-3">No WA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${guru.length ? guru.map(g => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    ${isKetuaYayasan ? `<td class="p-3"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${g.tenant_id || '-'}</span></td>` : ''}
+                                    <td class="p-3">${g.niy || '-'}</td>
+                                    <td class="p-3 font-semibold">${g.nama || '-'}</td>
+                                    <td class="p-3">${g.jabatan || '-'}</td>
+                                    <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs">${g.sebagai || 'Guru'}</span></td>
+                                    <td class="p-3">${g.no_wa || '-'}</td>
+                                </tr>
+                                `).join('') : `<tr><td colspan="${isKetuaYayasan ? '6' : '5'}" class="p-4 text-center text-gray-400">Belum ada data guru</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${guru.length > 0 ? `<div class="mt-4 text-sm text-gray-500">Total: ${guru.length} guru</div>` : ''}
+                </div>`;
+        }
+
+        async function loadSiswa() {
+            const res = await fetch('/api/students', { headers: { 'Authorization': `Bearer ${token}` } });
+            const siswa = res.ok ? await res.json() : [];
+            const siswaFiltered = isKetuaYayasan ? siswa : siswa.filter(s => s.tenant_id === tenant);
+
+            document.getElementById('siswa-content').innerHTML = `
+                <div class="bg-white rounded-3xl card-shadow p-8">
+                    <h3 class="text-xl font-bold mb-6">
+                        Daftar Siswa ${isKetuaYayasan ? 'Semua Unit' : ''}
+                        ${isKetuaYayasan ? '<span class="text-sm text-gray-500 font-normal">(Ketua Yayasan - Akses Semua Unit)</span>' : ''}
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    ${isKetuaYayasan ? '<th class="p-3">Unit</th>' : ''}
+                                    <th class="p-3">NIS</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">Jurusan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${siswaFiltered.length ? siswaFiltered.map(s => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    ${isKetuaYayasan ? `<td class="p-3"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${s.tenant_id || '-'}</span></td>` : ''}
+                                    <td class="p-3">${s.nis || '-'}</td>
+                                    <td class="p-3 font-semibold">${s.nama || '-'}</td>
+                                    <td class="p-3">${s.kelas || '-'}</td>
+                                    <td class="p-3">${s.jurusan || '-'}</td>
+                                </tr>
+                                `).join('') : `<tr><td colspan="${isKetuaYayasan ? '5' : '4'}" class="p-4 text-center text-gray-400">Belum ada data siswa</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${siswaFiltered.length > 0 ? `<div class="mt-4 text-sm text-gray-500">Total: ${siswaFiltered.length} siswa</div>` : ''}
+                </div>`;
+        }
+
+        async function loadPengajuan() {
+            const res = await fetch('/api/all-attendance-requests', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = res.ok ? await res.json() : [];
+            const pengajuan = isKetuaYayasan ? data : data.filter(p => p.tenant_id === tenant);
+
+            document.getElementById('pengajuan-content').innerHTML = `
+                <div class="bg-white rounded-3xl card-shadow p-8">
+                    <h3 class="text-xl font-bold mb-6">
+                        Pengajuan Izin/Sakit ${isKetuaYayasan ? 'Semua Unit' : ''}
+                        ${isKetuaYayasan ? '<span class="text-sm text-gray-500 font-normal">(Ketua Yayasan - Akses Semua Unit)</span>' : ''}
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    ${isKetuaYayasan ? '<th class="p-3">Unit</th>' : ''}
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Jenis</th>
+                                    <th class="p-3">Alasan</th>
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${pengajuan.length ? pengajuan.map(p => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    ${isKetuaYayasan ? `<td class="p-3"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${p.tenant_id || '-'}</span></td>` : ''}
+                                    <td class="p-3 font-semibold">${p.nama}</td>
+                                    <td class="p-3"><span class="px-2 py-1 ${p.jenis === 'Izin' ? 'bg-blue-100 text-blue-700' : 'bg-yellow-100 text-yellow-700'} rounded-lg text-xs">${p.jenis}</span></td>
+                                    <td class="p-3">${p.alasan}</td>
+                                    <td class="p-3">${new Date(p.tanggal_mulai).toLocaleDateString('id-ID')} - ${new Date(p.tanggal_akhir).toLocaleDateString('id-ID')}</td>
+                                    <td class="p-3"><span class="px-2 py-1 ${p.status === 'pending' ? 'bg-yellow-100 text-yellow-700' : p.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} rounded-lg text-xs">${p.status === 'pending' ? 'Menunggu' : p.status === 'approved' ? 'Disetujui' : 'Ditolak'}</span></td>
+                                    <td class="p-3">
+                                        ${p.status === 'pending' ? `
+                                        <button onclick="setuju(${p.id})" class="text-green-600 hover:text-green-800"><i class="bi bi-check"></i></button>
+                                        <button onclick="tolak(${p.id})" class="text-red-600 hover:text-red-800 ml-2"><i class="bi bi-x"></i></button>
+                                        ` : '-'}
+                                    </td>
+                                </tr>
+                                `).join('') : `<tr><td colspan="${isKetuaYayasan ? '7' : '6'}" class="p-4 text-center text-gray-400">Belum ada pengajuan</td></tr>`}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${pengajuan.length > 0 ? `<div class="mt-4 text-sm text-gray-500">Total: ${pengajuan.length} pengajuan</div>` : ''}
+                </div>`;
+        }
+
+        async function loadProgress() {
+            if (!isKetuaYayasan) {
+                document.getElementById('progress-content').innerHTML = '<div class="text-center py-8 text-gray-500">Menu ini hanya untuk Ketua Yayasan</div>';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/all-teachers');
+                const allTeachers = await res.json();
+
+                // Group by tenant and calculate completion percentage
+                const tenantStats = {};
+                allTeachers.forEach(teacher => {
+                    const tenantId = teacher.tenant_id || 'Unknown';
+                    if (!tenantStats[tenantId]) {
+                        tenantStats[tenantId] = { total: 0, complete: 0 };
+                    }
+                    tenantStats[tenantId].total++;
+
+                    // Check if profile is complete
+                    const requiredFields = ['nama', 'niy', 'nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'no_wa', 'email', 'jenjang', 'jabatan', 'sebagai', 'status_kepegawaian', 'tmt', 'status_aktif', 'keterangan', 'link_foto'];
+                    const isComplete = requiredFields.every(field => {
+                        const value = teacher[field];
+                        return value !== null && value !== undefined && value.toString().trim() !== '';
+                    });
+
+                    if (isComplete) {
+                        tenantStats[tenantId].complete++;
+                    }
+                });
+
+                const tenantList = Object.keys(tenantStats).sort();
+
+                document.getElementById('progress-content').innerHTML = `
+                    <div class="bg-white rounded-3xl card-shadow p-8">
+                        <h3 class="text-xl font-bold mb-6">
+                            Progress Pengisian Data Guru Semua Unit
+                            <span class="text-sm text-gray-500 font-normal">(Ketua Yayasan - Akses Semua Unit)</span>
+                        </h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${tenantList.map(tenantId => {
+                                const stats = tenantStats[tenantId];
+                                const percentage = stats.total > 0 ? Math.round((stats.complete / stats.total) * 100) : 0;
+                                const colorClass = percentage >= 80 ? 'bg-green-500' : percentage >= 60 ? 'bg-yellow-500' : 'bg-red-500';
+
+                                return `
+                                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <h4 class="font-bold text-gray-800">${tenantId}</h4>
+                                            <span class="text-2xl font-bold ${percentage >= 80 ? 'text-green-600' : percentage >= 60 ? 'text-yellow-600' : 'text-red-600'}">${percentage}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                            <div class="${colorClass} h-2 rounded-full" style="width: ${percentage}%"></div>
+                                        </div>
+                                        <p class="text-sm text-gray-600">${stats.complete}/${stats.total} guru lengkap</p>
+                                        <button onclick="viewTenantDetails('${tenantId}')" class="mt-3 text-sm text-primary hover:underline">
+                                            Lihat Detail →
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <div class="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-info-circle text-blue-600"></i>
+                                <div>
+                                    <h4 class="font-semibold text-blue-800">Informasi Progress</h4>
+                                    <p class="text-sm text-blue-700">Data guru dianggap lengkap jika semua field wajib telah diisi (nama, NIY, NIK, dll).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            } catch (error) {
+                console.error('Error loading progress:', error);
+                document.getElementById('progress-content').innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="bi bi-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Error: ${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        function viewTenantDetails(tenantId) {
+            // Open progress page with specific tenant filter
+            window.open(`../progress.html?tenant=${tenantId}`, '_blank');
+        }
+
+        async function setuju(id) {
+            if (!confirm('Setuju pengajuan ini?')) return;
+            const res = await fetch(`/api/attendance-request/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ status: 'approved' })
+            });
+            if (res.ok) { alert('Disetujui!'); loadPengajuan(); }
+        }
+
+        async function tolak(id) {
+            if (!confirm('Tolak pengajuan ini?')) return;
+            const res = await fetch(`/api/attendance-request/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({ status: 'rejected' })
+            });
+            if (res.ok) { alert('Ditolak!'); loadPengajuan(); }
+        }
+
+        function toggleSidebar() { document.querySelector('aside').classList.toggle('hidden'); }
+        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+        renderRoute('overview');
+    </script>
+</body>
+</html>

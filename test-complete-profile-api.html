@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Complete Profile API</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; }
+        form { margin: 20px 0; padding: 15px; background: #f9f9f9; border-radius: 5px; }
+        input, select { width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ccc; border-radius: 3px; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Test Complete Profile API</h1>
+
+    <div class="test-section info">
+        <h3>1. API Information</h3>
+        <p><strong>Endpoint:</strong> POST /complete-profile</p>
+        <p><strong>Content-Type:</strong> multipart/form-data (untuk file upload)</p>
+        <p><strong>Required Fields:</strong> teacherId, nama, email, no_wa, dll.</p>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. Test Form</h3>
+        <form id="testForm" enctype="multipart/form-data">
+            <label>Teacher ID:</label>
+            <input type="text" name="teacherId" value="995" required><br>
+
+            <label>Nama:</label>
+            <input type="text" name="nama" value="Muh. Fadli" required><br>
+
+            <label>Email:</label>
+            <input type="email" name="email" value="f70050119@gmail.com" required><br>
+
+            <label>No WA:</label>
+            <input type="tel" name="no_wa" value="6285290359293" required><br>
+
+            <label>Jenis Kelamin:</label>
+            <select name="jenis_kelamin" required>
+                <option value="">Pilih</option>
+                <option value="Laki-laki" selected>Laki-laki</option>
+                <option value="Perempuan">Perempuan</option>
+            </select><br>
+
+            <label>NIY:</label>
+            <input type="text" name="niy" value="0710200205202400006"><br>
+
+            <label>NIK:</label>
+            <input type="text" name="nik" value="7317210710020001"><br>
+
+            <label>Jenjang:</label>
+            <select name="jenjang" required>
+                <option value="">Pilih</option>
+                <option value="06 YPWI" selected>06 YPWI</option>
+                <option value="01 TKIT">01 TKIT</option>
+            </select><br>
+
+            <label>Jabatan:</label>
+            <select name="jabatan" required>
+                <option value="">Pilih</option>
+                <option value="Bendahara" selected>Bendahara</option>
+                <option value="Guru">Guru</option>
+            </select><br>
+
+            <label>Sebagai:</label>
+            <select name="sebagai" required>
+                <option value="">Pilih</option>
+                <option value="Guru" selected>Guru</option>
+                <option value="Karyawan">Karyawan</option>
+            </select><br>
+
+            <label>Status Kepegawaian:</label>
+            <select name="status_kepegawaian" required>
+                <option value="">Pilih</option>
+                <option value="PTY" selected>PTY</option>
+                <option value="Honor">Honor</option>
+            </select><br>
+
+            <label>Status Aktif:</label>
+            <select name="status_aktif" required>
+                <option value="">Pilih</option>
+                <option value="Aktif" selected>Aktif</option>
+                <option value="Tidak Aktif">Tidak Aktif</option>
+            </select><br>
+
+            <label>Tempat Lahir:</label>
+            <input type="text" name="tempat_lahir" value="Sompu-sompu"><br>
+
+            <label>Tanggal Lahir:</label>
+            <input type="date" name="tanggal_lahir" value="2002-10-06"><br>
+
+            <label>Alamat:</label>
+            <textarea name="alamat">Dusun Sompu-Sompu, Desa Tarramatekkeng, Kec. Ponrang Selatan, Kab. Luwu</textarea><br>
+
+            <label>TMT:</label>
+            <input type="date" name="tmt"><br>
+
+            <label>Keterangan:</label>
+            <textarea name="keterangan">Masih bujang</textarea><br>
+
+            <label>Foto:</label>
+            <input type="file" name="foto" accept="image/*"><br>
+
+            <label>Terima Notifikasi:</label>
+            <select name="terima_notifikasi">
+                <option value="1" selected>Ya</option>
+                <option value="0">Tidak</option>
+            </select><br><br>
+
+            <button type="submit">Test Complete Profile API</button>
+        </form>
+    </div>
+
+    <div class="test-section info">
+        <h3>3. Response</h3>
+        <div id="response">Waiting for response...</div>
+    </div>
+
+    <div class="test-section data">
+        <h3>4. Raw Response Data</h3>
+        <pre id="rawResponse">No response yet</pre>
+    </div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const form = document.getElementById('testForm');
+            const formData = new FormData(form);
+
+            document.getElementById('response').innerHTML = '<div class="info">Sending request...</div>';
+            document.getElementById('rawResponse').textContent = 'Sending...';
+
+            try {
+                console.log('Sending request to /complete-profile');
+                console.log('Form data entries:');
+                for (let [key, value] of formData.entries()) {
+                    console.log(key + ':', value);
+                }
+
+                const response = await fetch('/complete-profile', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                console.log('Response:', response.status, result);
+
+                if (result.success) {
+                    document.getElementById('response').innerHTML = `
+                        <div class="success">
+                            <strong>✅ Success!</strong><br>
+                            Profile completed successfully<br>
+                            Token generated: ${result.token ? 'Yes' : 'No'}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('response').innerHTML = `
+                        <div class="error">
+                            <strong>❌ Error:</strong> ${result.message}
+                        </div>
+                    `;
+                }
+
+                document.getElementById('rawResponse').textContent = JSON.stringify(result, null, 2);
+
+            } catch (error) {
+                console.error('Network error:', error);
+                document.getElementById('response').innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error:</strong> ${error.message}
+                    </div>
+                `;
+                document.getElementById('rawResponse').textContent = 'Network error: ' + error.message;
+            }
+        });
+
+        // Auto-fill some test data
+        console.log('Test page loaded - ready to test complete-profile API');
+    </script>
+</body>
+</html>

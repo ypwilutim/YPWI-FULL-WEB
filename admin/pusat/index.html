@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPWI Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f9ff; }
+        .active-link { background: #1f8a4a; color: white; border-radius: 1rem; }
+        .nav-item:not(.active-link):hover { background-color: #f9fafb; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(31, 138, 74, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen z-50 hidden md:block relative">
+        <button onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 text-gray-600 hover:text-gray-800 z-10"><i class="bi bi-x-lg text-xl"></i></button>
+        <div class="p-8 border-b border-gray-50 text-center">
+            <h1 class="text-2xl font-black text-[#1f8a4a]">YPWI<span class="text-[#93d5f4]">ADMIN</span></h1>
+            <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em]">MANAGEMENT</p>
+        </div>
+
+        <nav class="flex-1 p-6 space-y-6 overflow-y-auto">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Dashboard</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('overview')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-grid-1x2-fill"></i> Overview
+                    </button>
+                    <button onclick="renderRoute('tenants')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-building"></i> Tenants
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Manajemen Data</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('guru')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-person-badge"></i> Kelola Guru
+                    </button>
+                    <button onclick="renderRoute('siswa')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-people-fill"></i> Kelola Siswa
+                    </button>
+                    <button onclick="renderRoute('progress')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-bar-chart-fill"></i> Progress Data
+                    </button>
+                    <button onclick="renderRoute('cari-user')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-search"></i> Cari User
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Absensi & Laporan</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('laporan-absensi')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-file-earmark-bar-graph"></i> Laporan Absensi
+                    </button>
+                    <button onclick="renderRoute('input-absensi')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-plus-square"></i> Input Absensi Manual
+                    </button>
+                    <button onclick="renderRoute('pengajuan-izin')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-envelope-check"></i> Pengajuan Izin
+                    </button>
+                    <button onclick="renderRoute('reports')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-bar-chart"></i> Reports
+                    </button>
+                </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Pengaturan</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('attendance-rules')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-clock-history"></i> Aturan Absensi
+                    </button>
+                    <a href="manage-devices.html" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-phone"></i> Devices
+                    </a>
+                    <button onclick="renderRoute('export-import')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-cloud-download"></i> Export/Import
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-6 bg-gray-50 m-4 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#1f8a4a] rounded-xl flex items-center justify-center text-white font-bold">A</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-gray-800 truncate">Admin</p>
+                    <p class="text-[10px] text-gray-400">YPWI System</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="bg-white/80 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-600"><i class="bi bi-list"></i></button>
+                <h2 id="page-title" class="text-xl font-extrabold text-gray-800">Admin Dashboard</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="logout()" class="text-gray-400 hover:text-gray-600"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
+        </header>
+
+        <div id="app-viewport" class="p-8 overflow-y-auto max-h-[calc(100vh-80px)]">
+            <!-- Content will be rendered here -->
+        </div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login.html';
+        }
+
+        // ROUTING LOGIC
+        function renderRoute(route) {
+            const viewport = document.getElementById('app-viewport');
+            const title = document.getElementById('page-title');
+
+            // Update Active Link UI
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-link', 'text-white'));
+            const activeBtn = document.querySelector(`button[onclick="renderRoute('${route}')"]`);
+            if (activeBtn) activeBtn.classList.add('active-link', 'text-white');
+
+            let html = '';
+
+            switch(route) {
+                case 'overview':
+                    title.innerText = "Admin Overview";
+                    html = `
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <div class="md:col-span-2 space-y-8">
+                                <div class="bg-gradient-to-r from-[#1f8a4a] to-[#2d6a4f] p-10 rounded-[3rem] text-white card-shadow">
+                                    <h1 class="text-3xl font-black mb-2 italic">Selamat Datang, Admin!</h1>
+                                    <p class="opacity-80 text-sm mb-6">Kelola sistem YPWI dengan efisien.</p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-6">
+                                    <div class="bg-white p-6 rounded-[2rem] border border-gray-50 card-shadow">
+                                        <p class="text-gray-400 text-[10px] font-bold uppercase mb-2">Total Tenants</p>
+                                        <h3 class="text-3xl font-black text-gray-800" id="tenants-count">0</h3>
+                                    </div>
+                                    <div class="bg-white p-6 rounded-[2rem] border border-gray-100">
+                                        <p class="text-gray-400 text-[10px] font-bold uppercase mb-2">Total Guru</p>
+                                        <h3 class="text-3xl font-black text-[#1f8a4a]" id="teachers-count">0</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-[3rem] p-8 border border-gray-100 card-shadow">
+                                <h3 class="font-bold text-lg mb-6 text-gray-800">Statistik Sistem</h3>
+                                <div class="space-y-4">
+                                    <p>Siswa: <span id="students-count">0</span></p>
+                                    <p>Absensi: <span id="attendance-count">0</span></p>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    fetchAdminStats();
+                    break;
+
+                case 'tenants':
+                    title.innerText = "Manage Tenants";
+                    html = `<div class="bg-white rounded-[2rem] p-8 card-shadow"><h3 class="font-bold text-xl mb-4">Daftar Tenants</h3><div id="tenants-list"><!-- Tenants --></div></div>`;
+                    fetchTenants();
+                    break;
+
+                case 'reports':
+                    title.innerText = "Reports";
+                    html = `<div class="bg-white rounded-[2rem] p-8 card-shadow"><h3 class="font-bold text-xl mb-4">Laporan Sistem</h3><p>Feature dalam pengembangan...</p></div>`;
+                    break;
+
+                case 'guru':
+                    title.innerText = "Kelola Guru Semua Unit";
+                    html = `<div id="guru-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadGuruManagement();
+                    break;
+
+                case 'siswa':
+                    title.innerText = "Kelola Siswa Semua Unit";
+                    html = `<div id="siswa-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadSiswaManagement();
+                    break;
+
+                case 'progress':
+                    title.innerText = "Progress Data Guru";
+                    html = `<div id="progress-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadProgressData();
+                    break;
+
+                case 'cari-user':
+                    title.innerText = "Cari User";
+                    html = `<div id="cari-user-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadCariUser();
+                    break;
+
+                case 'laporan-absensi':
+                    title.innerText = "Laporan Absensi";
+                    html = `<div id="laporan-absensi-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadLaporanAbsensi();
+                    break;
+
+                case 'input-absensi':
+                    title.innerText = "Input Absensi Manual";
+                    html = `<div id="input-absensi-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadInputAbsensi();
+                    break;
+
+                case 'pengajuan-izin':
+                    title.innerText = "Pengajuan Izin/Sakit";
+                    html = `<div id="pengajuan-izin-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadPengajuanIzin();
+                    break;
+
+                case 'export-import':
+                    title.innerText = "Export/Import Data";
+                    html = `<div id="export-import-content"><div class="text-center py-8">Loading...</div></div>`;
+                    loadExportImport();
+                    break;
+                    
+                case 'attendance-rules':
+                    title.innerText = "Aturan Absensi";
+                    html = `
+                        <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h3 class="font-bold text-xl">Pengaturan Aturan Absensi</h3>
+                                    <p class="text-gray-400 text-sm">Atur waktu dan keterangannya untuk absensi Datang & Pulang</p>
+                                </div>
+                                <button onclick="showAddRuleModal()" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-xl font-semibold hover:bg-[#2d6a4f] flex items-center gap-2 shadow-lg">
+                                    <i class="bi bi-plus-circle"></i> Tambah Aturan
+                                </button>
+                            </div>
+                            
+                            <!-- Filter -->
+                            <div class="mb-6 flex gap-4 flex-wrap">
+                                <select id="tenant-filter" onchange="loadAttendanceRules()" class="border-2 border-gray-200 rounded-xl px-4 py-3 w-64 focus:border-[#1f8a4a] focus:outline-none">
+                                    <option value="">Semua Tenant</option>
+                                </select>
+                                <select id="type-filter" onchange="loadAttendanceRules()" class="border-2 border-gray-200 rounded-xl px-4 py-3 w-48 focus:border-[#1f8a4a] focus:outline-none">
+                                    <option value="">Semua Tipe</option>
+                                    <option value="Datang">🟢 Datang</option>
+                                    <option value="Pulang">🟠 Pulang</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Rules List -->
+                            <div id="rules-list" class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                <p class="text-gray-400 col-span-full text-center py-8">Memuat...</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Modal Form -->
+                        <div id="add-rule-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+                            <div class="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl transform transition-all">
+                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="font-bold text-xl text-[#1f8a4a]">Tambah Aturan Absensi</h3>
+                                    <button onclick="closeAddRuleModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                                </div>
+                                <form id="add-rule-form" onsubmit="submitRule(event)">
+                                    <div class="space-y-4">
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-600 mb-2">Tenant</label>
+                                            <select id="rule-tenant" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#1f8a4a] focus:outline-none" required>
+                                                <option value="SYSTEM">SYSTEM (Default)</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-600 mb-2">Tipe Absensi</label>
+                                            <div class="flex gap-4">
+                                                <label class="flex-1 border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-[#1f8a4a] has-[:checked]:border-[#1f8a4a] has-[:checked]:bg-green-50">
+                                                    <input type="radio" name="rule-type" value="Datang" class="hidden" checked>
+                                                    <div class="text-center">
+                                                        <span class="text-2xl">🟢</span>
+                                                        <p class="font-semibold">Datang</p>
+                                                    </div>
+                                                </label>
+                                                <label class="flex-1 border-2 border-gray-200 rounded-xl p-4 cursor-pointer hover:border-[#1f8a4a] has-[:checked]:border-[#1f8a4a] has-[:checked]:bg-orange-50">
+                                                    <input type="radio" name="rule-type" value="Pulang" class="hidden">
+                                                    <div class="text-center">
+                                                        <span class="text-2xl">🟠</span>
+                                                        <p class="font-semibold">Pulang</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-600 mb-2">Waktu Mulai</label>
+                                                <input type="time" id="rule-waktu-mulai" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#1f8a4a] focus:outline-none" value="06:00" required>
+                                            </div>
+                                            <div>
+                                                <label class="block text-sm font-semibold text-gray-600 mb-2">Waktu Akhir</label>
+                                                <input type="time" id="rule-waktu-akhir" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#1f8a4a] focus:outline-none" value="07:00" required>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label class="block text-sm font-semibold text-gray-600 mb-2">Keterangan</label>
+                                            <input type="text" id="rule-keterangan" class="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:border-[#1f8a4a] focus:outline-none" placeholder="Contoh: Tepat Waktu, Terlambat, Pulang Cepat" required>
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="w-full bg-[#1f8a4a] text-white font-bold py-4 rounded-xl mt-6 hover:bg-[#2d6a4f] transition">
+                                        Simpan Aturan
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    `;
+                    loadTenantsForFilter();
+                    loadAttendanceRules();
+                    break;
+            }
+            
+            // Render HTML first
+            viewport.innerHTML = html;
+            
+            // Then load data
+            if (route === 'tenants') {
+                fetchTenants();
+            } else if (route === 'attendance-rules') {
+                loadTenantsForFilter();
+                loadAttendanceRules();
+            }
+            if (window.innerWidth < 768) {
+                const sidebar = document.querySelector('aside');
+                sidebar.classList.add('hidden');
+            }
+        }
+
+        function fetchAdminStats() {
+            fetch('/api/admin-stats', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(stats => {
+                document.getElementById('tenants-count').innerText = stats.tenants || 0;
+                document.getElementById('teachers-count').innerText = stats.teachers || 0;
+                document.getElementById('students-count').innerText = stats.students || 0;
+                document.getElementById('attendance-count').innerText = stats.attendance || 0;
+            })
+            .catch(err => console.error('Stats fetch error:', err));
+        }
+
+        function fetchTenants() {
+            fetch('/api/tenants', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(tenants => {
+                document.getElementById('tenants-list').innerHTML = tenants.map(t => `<p>${t.name} (${t.code})</p>`).join('');
+            })
+            .catch(err => console.error('Tenants fetch error:', err));
+        }
+
+        function loadTenantsForFilter() {
+            const select = document.getElementById('tenant-filter');
+            if (!select) return;
+            
+            fetch('/api/tenants', { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(tenants => {
+                select.innerHTML = '<option value="">Semua Tenant</option>' + 
+                    tenants.map(t => `<option value="${t.code}">${t.name}</option>`).join('');
+            })
+            .catch(err => console.error('Error loading tenants:', err));
+        }
+
+        function loadAttendanceRules() {
+            const tenantSelect = document.getElementById('tenant-filter');
+            const typeSelect = document.getElementById('type-filter');
+            if (!tenantSelect || !typeSelect) return;
+            
+            const tenantFilter = tenantSelect.value;
+            const typeFilter = typeSelect.value;
+            
+            let url = '/api/attendance-rules?';
+            if (tenantFilter) url += 'tenant_id=' + tenantFilter + '&';
+            if (typeFilter) url += 'type=' + typeFilter;
+            
+            fetch(url, { headers: { 'Authorization': `Bearer ${token}` } })
+            .then(res => res.json())
+            .then(rules => {
+                const container = document.getElementById('rules-list');
+                if (!container) return;
+                
+                if (rules.length === 0) {
+                    container.innerHTML = '<div class="col-span-full text-center py-12"><div class="text-6xl mb-4">📋</div><p class="text-gray-400 text-lg">Belum ada aturan absensi</p><p class="text-gray-300 text-sm">Klik "Tambah Aturan" untuk membuat</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = rules.map(rule => `
+                    <div class="bg-white border-2 border-gray-100 rounded-2xl p-6 hover:shadow-lg transition-all hover:border-[#1f8a4a]">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="px-4 py-2 rounded-full text-sm font-bold ${rule.type === 'Datang' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}">
+                                ${rule.type === 'Datang' ? '🟢' : '🟠'} ${rule.type}
+                            </span>
+                            <button onclick="deleteRule(${rule.id})" class="text-red-400 hover:text-red-600 p-2 hover:bg-red-50 rounded-lg transition">
+                                <i class="bi bi-trash text-lg"></i>
+                            </button>
+                        </div>
+                        <h4 class="font-bold text-xl text-gray-800 mb-2">${rule.keterangan}</h4>
+                        <div class="flex items-center gap-2 text-gray-500">
+                            <i class="bi bi-clock"></i>
+                            <span class="font-semibold">${rule.waktu_mulai.slice(0,5)}</span>
+                            <span>-</span>
+                            <span class="font-semibold">${rule.waktu_akhir.slice(0,5)}</span>
+                        </div>
+                        ${rule.tenant_id !== 'SYSTEM' ? `<div class="mt-3 pt-3 border-t border-gray-100"><span class="text-xs text-gray-400 bg-gray-100 px-2 py-1 rounded">${rule.tenant_id}</span></div>` : '<div class="mt-3 pt-3 border-t border-gray-100"><span class="text-xs text-[#1f8a4a] bg-green-50 px-2 py-1 rounded">Default System</span></div>'}
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error('Error loading rules:', err));
+        }
+
+        function showAddRuleModal() {
+            const modal = document.getElementById('add-rule-modal');
+            if (modal) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+        }
+
+        function closeAddRuleModal() {
+            const modal = document.getElementById('add-rule-modal');
+            if (modal) {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        function submitRule(e) {
+            e.preventDefault();
+            const tenant_id = document.getElementById('rule-tenant').value;
+            const type = document.querySelector('input[name="rule-type"]:checked').value;
+            const waktu_mulai = document.getElementById('rule-waktu-mulai').value;
+            const waktu_akhir = document.getElementById('rule-waktu-akhir').value;
+            const keterangan = document.getElementById('rule-keterangan').value;
+
+            fetch('/api/attendance-rules', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    tenant_id,
+                    type,
+                    waktu_mulai: waktu_mulai + ':00',
+                    waktu_akhir: waktu_akhir + ':00',
+                    keterangan
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                closeAddRuleModal();
+                document.getElementById('add-rule-form').reset();
+                loadAttendanceRules();
+            })
+            .catch(err => {
+                alert('Gagal menambah aturan');
+                console.error(err);
+            });
+        }
+
+        function deleteRule(id) {
+            if (!confirm('Hapus aturan ini?')) return;
+            fetch('/api/attendance-rules/' + id, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.json())
+            .then(() => {
+                loadAttendanceRules();
+            })
+            .catch(err => {
+                alert('Gagal menghapus');
+                console.error(err);
+            });
+        }
+
+        // NEW MENU FUNCTIONS
+        async function loadGuruManagement() {
+            const res = await fetch('/api/all-teachers');
+            const allGuru = await res.json();
+            const guru = allGuru; // Admin pusat melihat semua guru
+
+            document.getElementById('guru-content').innerHTML = `
+                <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-xl">Kelola Guru Semua Unit</h3>
+                        <button onclick="showAddGuruModal()" class="bg-[#1f8a4a] text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700">
+                            <i class="bi bi-plus"></i> Tambah Guru
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    <th class="p-3">Unit</th>
+                                    <th class="p-3">NIY</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Jabatan</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${guru.length ? guru.slice(0, 100).map(g => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${g.tenant_id || '-'}</span></td>
+                                    <td class="p-3">${g.niy || '-'}</td>
+                                    <td class="p-3 font-semibold">${g.nama || '-'}</td>
+                                    <td class="p-3">${g.jabatan || '-'}</td>
+                                    <td class="p-3"><span class="px-2 py-1 ${g.status_aktif === 'Aktif' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'} rounded text-xs">${g.status_aktif || 'Tidak Aktif'}</span></td>
+                                    <td class="p-3">
+                                        <button onclick="editGuru(${g.id})" class="text-blue-500 hover:text-blue-700 mr-2"><i class="bi bi-pencil"></i></button>
+                                        <button onclick="deleteGuru(${g.id})" class="text-red-500 hover:text-red-700"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                                `).join('') : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Belum ada data guru</td></tr>'}
+                            </tbody>
+                        </table>
+                        ${guru.length > 100 ? '<div class="mt-4 text-sm text-gray-500 text-center">Menampilkan 100 data pertama</div>' : ''}
+                    </div>
+                </div>`;
+        }
+
+        async function loadSiswaManagement() {
+            const res = await fetch('/api/students', { headers: { 'Authorization': `Bearer ${token}` } });
+            const siswa = res.ok ? await res.json() : [];
+
+            document.getElementById('siswa-content').innerHTML = `
+                <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-xl">Kelola Siswa Semua Unit</h3>
+                        <button onclick="showAddSiswaModal()" class="bg-[#1f8a4a] text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700">
+                            <i class="bi bi-plus"></i> Tambah Siswa
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    <th class="p-3">Unit</th>
+                                    <th class="p-3">NIS</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">Jurusan</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${siswa.length ? siswa.slice(0, 100).map(s => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3"><span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">${s.tenant_id || '-'}</span></td>
+                                    <td class="p-3">${s.nis || '-'}</td>
+                                    <td class="p-3 font-semibold">${s.nama || '-'}</td>
+                                    <td class="p-3">${s.kelas || '-'}</td>
+                                    <td class="p-3">${s.jurusan || '-'}</td>
+                                    <td class="p-3">
+                                        <button onclick="editSiswa(${s.id})" class="text-blue-500 hover:text-blue-700 mr-2"><i class="bi bi-pencil"></i></button>
+                                        <button onclick="deleteSiswa(${s.id})" class="text-red-500 hover:text-red-700"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                                `).join('') : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Belum ada data siswa</td></tr>'}
+                            </tbody>
+                        </table>
+                        ${siswa.length > 100 ? '<div class="mt-4 text-sm text-gray-500 text-center">Menampilkan 100 data pertama</div>' : ''}
+                    </div>
+                </div>`;
+        }
+
+        async function loadProgressData() {
+            try {
+                const res = await fetch('/api/all-teachers');
+                const allTeachers = await res.json();
+
+                // Group by tenant and calculate completion percentage
+                const tenantStats = {};
+                allTeachers.forEach(teacher => {
+                    const tenantId = teacher.tenant_id || 'Unknown';
+                    if (!tenantStats[tenantId]) {
+                        tenantStats[tenantId] = { total: 0, complete: 0 };
+                    }
+                    tenantStats[tenantId].total++;
+
+                    // Check if profile is complete
+                    const requiredFields = ['nama', 'niy', 'nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'no_wa', 'email', 'jenjang', 'jabatan', 'sebagai', 'status_kepegawaian', 'tmt', 'status_aktif', 'keterangan', 'link_foto'];
+                    const isComplete = requiredFields.every(field => {
+                        const value = teacher[field];
+                        return value !== null && value !== undefined && value.toString().trim() !== '';
+                    });
+
+                    if (isComplete) {
+                        tenantStats[tenantId].complete++;
+                    }
+                });
+
+                const tenantList = Object.keys(tenantStats).sort();
+
+                document.getElementById('progress-content').innerHTML = `
+                    <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                        <h3 class="font-bold text-xl mb-6">Progress Pengisian Data Guru Semua Unit</h3>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            ${tenantList.map(tenantId => {
+                                const stats = tenantStats[tenantId];
+                                const percentage = stats.total > 0 ? Math.round((stats.complete / stats.total) * 100) : 0;
+                                const colorClass = percentage >= 80 ? 'bg-green-500' : percentage >= 60 ? 'bg-yellow-500' : 'bg-red-500';
+
+                                return `
+                                    <div class="bg-gray-50 rounded-2xl p-6 border border-gray-200">
+                                        <div class="flex justify-between items-center mb-3">
+                                            <h4 class="font-bold text-gray-800">${tenantId}</h4>
+                                            <span class="text-2xl font-bold ${percentage >= 80 ? 'text-green-600' : percentage >= 60 ? 'text-yellow-600' : 'text-red-600'}">${percentage}%</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                            <div class="${colorClass} h-2 rounded-full" style="width: ${percentage}%"></div>
+                                        </div>
+                                        <p class="text-sm text-gray-600">${stats.complete}/${stats.total} guru lengkap</p>
+                                        <button onclick="viewTenantProgress('${tenantId}')" class="mt-3 text-sm text-[#1f8a4a] hover:underline">
+                                            Lihat Detail →
+                                        </button>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+
+                        <div class="mt-8 p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <div class="flex items-center gap-3">
+                                <i class="bi bi-info-circle text-blue-600"></i>
+                                <div>
+                                    <h4 class="font-semibold text-blue-800">Informasi Progress</h4>
+                                    <p class="text-sm text-blue-700">Data guru dianggap lengkap jika semua field wajib telah diisi (nama, NIY, NIK, dll).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+            } catch (error) {
+                console.error('Error loading progress:', error);
+                document.getElementById('progress-content').innerHTML = `
+                    <div class="text-center py-8 text-red-500">
+                        <i class="bi bi-exclamation-triangle text-4xl mb-4"></i>
+                        <p>Error: ${error.message}</p>
+                    </div>`;
+            }
+        }
+
+        function loadCariUser() {
+            document.getElementById('cari-user-content').innerHTML = `
+                <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                    <h3 class="font-bold text-xl mb-6">Cari User Sistem</h3>
+                    <p class="text-gray-600 mb-4">Redirecting to dedicated page...</p>
+                    <a href="cari-user.html" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 inline-block">
+                        <i class="bi bi-search me-2"></i>Buka Halaman Cari User
+                    </a>
+                </div>`;
+        }
+
+        function loadLaporanAbsensi() {
+            document.getElementById('laporan-absensi-content').innerHTML = `
+                <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                    <h3 class="font-bold text-xl mb-6">Laporan Absensi Semua Unit</h3>
+                    <p class="text-gray-600 mb-4">Redirecting to dedicated page...</p>
+                    <a href="laporan-absensi.html" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 inline-block">
+                        <i class="bi bi-file-earmark-bar-graph me-2"></i>Buka Laporan Absensi
+                    </a>
+                </div>`;
+        }
+
+        function loadInputAbsensi() {
+            document.getElementById('input-absensi-content').innerHTML = `
+                <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                    <h3 class="font-bold text-xl mb-6">Input Absensi Manual</h3>
+                    <p class="text-gray-600 mb-4">Redirecting to dedicated page...</p>
+                    <a href="input-absensi-manual.html" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 inline-block">
+                        <i class="bi bi-plus-square me-2"></i>Buka Input Absensi
+                    </a>
+                </div>`;
+        }
+
+        function loadPengajuanIzin() {
+            document.getElementById('pengajuan-izin-content').innerHTML = `
+                <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                    <h3 class="font-bold text-xl mb-6">Pengajuan Izin/Sakit Semua Unit</h3>
+                    <p class="text-gray-600 mb-4">Redirecting to dedicated page...</p>
+                    <a href="pengajuan-izin.html" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 inline-block">
+                        <i class="bi bi-envelope-check me-2"></i>Buka Pengajuan Izin
+                    </a>
+                </div>`;
+        }
+
+        function loadExportImport() {
+            document.getElementById('export-import-content').innerHTML = `
+                <div class="bg-white rounded-[2rem] p-8 card-shadow">
+                    <h3 class="font-bold text-xl mb-6">Export/Import Data Sistem</h3>
+                    <p class="text-gray-600 mb-4">Redirecting to dedicated page...</p>
+                    <a href="export-import.html" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 inline-block">
+                        <i class="bi bi-cloud-download me-2"></i>Buka Export/Import
+                    </a>
+                </div>`;
+        }
+
+        function viewTenantProgress(tenantId) {
+            window.open(`../progress.html?tenant=${tenantId}`, '_blank');
+        }
+
+        function showAddGuruModal() {
+            alert('Feature tambah guru akan diimplementasi');
+        }
+
+        function showAddSiswaModal() {
+            alert('Feature tambah siswa akan diimplementasi');
+        }
+
+        function editGuru(id) {
+            alert(`Edit guru ID: ${id} - Feature akan diimplementasi`);
+        }
+
+        function deleteGuru(id) {
+            if (confirm('Yakin hapus guru ini?')) {
+                alert(`Hapus guru ID: ${id} - Feature akan diimplementasi`);
+            }
+        }
+
+        function editSiswa(id) {
+            alert(`Edit siswa ID: ${id} - Feature akan diimplementasi`);
+        }
+
+        function deleteSiswa(id) {
+            if (confirm('Yakin hapus siswa ini?')) {
+                alert(`Hapus siswa ID: ${id} - Feature akan diimplementasi`);
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.querySelector('aside');
+            sidebar.classList.toggle('hidden');
+        }
+
+        // INITIALIZE
+        window.onload = () => {
+            renderRoute('overview');
+        };
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('tenant');
+            window.location.href = '/login.html';
+        }
+    </script>
+</body>
+</html>

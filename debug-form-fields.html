@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Form Submission</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; }
+        .highlight { background: #fff3cd; padding: 2px 4px; border-radius: 3px; }
+        .missing { background: #f8d7da; color: #721c24; }
+        .present { background: #d4edda; color: #155724; }
+    </style>
+</head>
+<body>
+    <h1>Debug Form Submission - Field Validation</h1>
+
+    <div class="test-section info">
+        <h3>1. Server Required Fields</h3>
+        <pre>Base required fields:
+- nama, nik, jenis_kelamin, tempat_lahir, tanggal_lahir, alamat, no_wa
+- jenjang, jabatan, sebagai, status_kepegawaian, tmt, status_aktif, keterangan, link_foto
+
+Conditional:
+- niy (required if TMT >= 2 years)
+
+Note: email is NOT required by server but form includes it</pre>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. Form Field Status</h3>
+        <div id="form-status">Loading form data...</div>
+    </div>
+
+    <div class="test-section success">
+        <h3>3. Test API Validation</h3>
+        <button onclick="testAPIValidation()">Test API Validation</button>
+        <div id="api-test-result" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="test-section info">
+        <h3>4. Complete Profile Test</h3>
+        <p>Test the actual complete-profile form:</p>
+        <button onclick="openCompleteProfile()">Open Complete Profile</button>
+    </div>
+
+    <script>
+        // Test form field status
+        function checkFormFields() {
+            const statusDiv = document.getElementById('form-status');
+
+            // Simulate form data that would be sent
+            const mockFormData = new FormData();
+
+            // Add mock data
+            mockFormData.append('teacherId', '995');
+            mockFormData.append('nama', 'Test User');
+            mockFormData.append('email', 'test@example.com'); // This field exists in form
+            mockFormData.append('nik', '1234567890123456');
+            mockFormData.append('jenis_kelamin', 'Laki-laki');
+            mockFormData.append('tempat_lahir', 'Jakarta');
+            mockFormData.append('tanggal_lahir', '1990-01-01');
+            mockFormData.append('alamat', 'Jl. Test No. 123');
+            mockFormData.append('no_wa', '081234567890');
+            mockFormData.append('jenjang', '06 YPWI');
+            mockFormData.append('jabatan', 'Guru Mapel');
+            mockFormData.append('sebagai', 'Guru');
+            mockFormData.append('status_kepegawaian', 'PTY');
+            mockFormData.append('tmt', '2020-01-01');
+            mockFormData.append('status_aktif', 'Aktif');
+            mockFormData.append('keterangan', 'Test user');
+            mockFormData.append('tenant_id', 'YPWILUTIM');
+            // mockFormData.append('foto', 'mock file'); // File upload
+
+            // Server required fields
+            const serverRequired = ['nama', 'nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'no_wa', 'jenjang', 'jabatan', 'sebagai', 'status_kepegawaian', 'tmt', 'status_aktif', 'keterangan', 'link_foto'];
+
+            let html = '<h5>Form Data vs Server Requirements:</h5>';
+            html += '<table border="1" cellpadding="5" style="border-collapse: collapse; width: 100%;">';
+            html += '<tr><th>Field</th><th>Form Value</th><th>Server Requires</th><th>Status</th></tr>';
+
+            serverRequired.forEach(field => {
+                const value = mockFormData.get(field);
+                const hasValue = value && value.toString().trim() !== '';
+                const status = hasValue ? 'present' : 'missing';
+
+                html += `<tr>
+                    <td><strong>${field}</strong></td>
+                    <td class="highlight">"${value || 'EMPTY'}"</td>
+                    <td>Yes</td>
+                    <td class="${status}">${hasValue ? '✅ OK' : '❌ MISSING'}</td>
+                </tr>`;
+            });
+
+            // Check email (not required by server but sent by form)
+            const emailValue = mockFormData.get('email');
+            html += `<tr>
+                <td><strong>email</strong></td>
+                <td class="highlight">"${emailValue || 'EMPTY'}"</td>
+                <td>No</td>
+                <td class="info">ℹ️ Optional</td>
+            </tr>`;
+
+            html += '</table>';
+
+            // Summary
+            const missingCount = serverRequired.filter(field => !mockFormData.get(field) || mockFormData.get(field).toString().trim() === '').length;
+            html += `<div style="margin-top: 15px; padding: 10px; background: ${missingCount > 0 ? '#f8d7da' : '#d4edda'}; border-radius: 5px;">
+                <strong>Summary:</strong> ${missingCount} missing required fields out of ${serverRequired.length} total.
+                ${missingCount > 0 ? 'This would cause "Data belum lengkap" error.' : 'All required fields present.'}
+            </div>`;
+
+            statusDiv.innerHTML = html;
+        }
+
+        function testAPIValidation() {
+            const resultDiv = document.getElementById('api-test-result');
+
+            // Test with minimal required data
+            const testData = {
+                teacherId: '995',
+                nama: 'Test User',
+                nik: '1234567890123456',
+                jenis_kelamin: 'Laki-laki',
+                tempat_lahir: 'Jakarta',
+                tanggal_lahir: '1990-01-01',
+                alamat: 'Jl. Test No. 123',
+                no_wa: '6281234567890',
+                jenjang: '06 YPWI',
+                jabatan: 'Guru Mapel',
+                sebagai: 'Guru',
+                status_kepegawaian: 'PTY',
+                tmt: '2020-01-01',
+                status_aktif: 'Aktif',
+                keterangan: 'Test user',
+                tenant_id: 'YPWILUTIM'
+                // link_foto missing - this might be the issue
+            };
+
+            resultDiv.innerHTML = '<div class="info">Testing API validation...</div>';
+
+            fetch('/complete-profile', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ API Test Passed</strong><br>
+                            Response: ${JSON.stringify(data)}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>❌ API Test Failed</strong><br>
+                            Message: ${data.message}<br>
+                            Response: ${JSON.stringify(data)}
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Network Error</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            });
+        }
+
+        function openCompleteProfile() {
+            window.open('/complete-profile.html?teacherId=995', '_blank');
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            checkFormFields();
+            console.log('Debug page loaded - checking form field validation');
+        });
+    </script>
+</body>
+</html>

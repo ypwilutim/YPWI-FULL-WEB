@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Jabatan & Unit Tambahan</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 200px; }
+        .highlight { background: #fff3cd; padding: 2px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Test Jabatan & Unit Tambahan Database Storage</h1>
+
+    <div class="test-section info">
+        <h3>1. Test Data Structure</h3>
+        <div id="data-structure">Loading...</div>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. Expected Database Fields</h3>
+        <pre><strong>jabatan:</strong> "Guru Mapel" (utama)
+<strong>jabatan_tambahan:</strong> "Walikelas, Mengaji" (tambahan)
+<strong>tenant_id:</strong> "TKITWI01" (utama)
+<strong>accessible_units:</strong> [{"code": "SDIT001", "name": "SDIT ABC"}] (tambahan)</pre>
+    </div>
+
+    <div class="test-section success">
+        <h3>3. Test Actions</h3>
+        <button onclick="testDatabaseFields()">Test Database Fields</button>
+        <button onclick="simulateFormData()">Simulate Form Submission</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div class="test-section data">
+        <h3>4. Test Results</h3>
+        <div id="test-results">No tests run yet</div>
+    </div>
+
+    <div class="test-section info">
+        <h3>5. Debug Info</h3>
+        <div id="debug-info">Ready...</div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const debugDiv = document.getElementById('debug-info');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? 'red' : type === 'success' ? 'green' : 'blue';
+            debugDiv.innerHTML += `<div style="color: ${color}; margin: 5px 0;">[${timestamp}] ${message}</div>`;
+        }
+
+        function testDatabaseFields() {
+            log('Testing database field structure...');
+
+            // Test API untuk melihat fields yang dikembalikan
+            fetch('/api/teacher-data/995')
+                .then(response => response.json())
+                .then(data => {
+                    const results = document.getElementById('test-results');
+                    let html = '<h5>Database Field Test Results:</h5>';
+
+                    // Check jabatan fields
+                    html += '<h6>🎯 Jabatan Fields:</h6>';
+                    html += `<div><strong>jabatan:</strong> <span class="highlight">"${data.jabatan || 'NULL'}"</span></div>`;
+                    html += `<div><strong>jabatan_tambahan:</strong> <span class="highlight">"${data.jabatan_tambahan || 'NULL'}"</span></div>`;
+
+                    // Check tenant fields
+                    html += '<h6>🏫 Unit Fields:</h6>';
+                    html += `<div><strong>tenant_id:</strong> <span class="highlight">"${data.tenant_id || 'NULL'}"</span></div>`;
+                    html += `<div><strong>accessible_units:</strong> <span class="highlight">"${data.accessible_units || 'NULL'}"</span></div>`;
+
+                    // Analysis
+                    html += '<h6>📊 Analysis:</h6>';
+                    const hasTambahanJabatan = data.jabatan_tambahan && data.jabatan_tambahan.trim() !== '';
+                    const hasAccessibleUnits = data.accessible_units && data.accessible_units.trim() !== '';
+
+                    html += `<div>Jabatan Tambahan: <strong class="${hasTambahanJabatan ? 'text-success' : 'text-warning'}">${hasTambahanJabatan ? '✅ Ada' : '⚠️ Tidak ada'}</strong></div>`;
+                    html += `<div>Unit Tambahan: <strong class="${hasAccessibleUnits ? 'text-success' : 'text-warning'}">${hasAccessibleUnits ? '✅ Ada' : '⚠️ Tidak ada'}</strong></div>`;
+
+                    results.innerHTML = html;
+                    log('Database field test completed', 'success');
+                })
+                .catch(error => {
+                    document.getElementById('test-results').innerHTML = `<div class="text-danger">❌ Error: ${error.message}</div>`;
+                    log('Database field test failed: ' + error.message, 'error');
+                });
+        }
+
+        function simulateFormData() {
+            log('Simulating form data submission...');
+
+            // Simulate data yang akan dikirim
+            const formData = new FormData();
+
+            // Data utama
+            formData.append('teacherId', '995');
+            formData.append('nama', 'Test Guru');
+            formData.append('jabatan', 'Guru Mapel'); // Utama
+            formData.append('jabatan_tambahan', 'Walikelas, Mengaji'); // Tambahan
+            formData.append('tenant_id', 'TKITWI01'); // Utama
+            formData.append('accessible_units', JSON.stringify([
+                { code: 'SDIT001', name: 'SDIT ABC' }
+            ])); // Tambahan
+
+            // Show what will be sent
+            const results = document.getElementById('test-results');
+            let preview = '<h5>📤 Form Data Preview:</h5>';
+            for (let [key, value] of formData.entries()) {
+                preview += `<div><strong>${key}:</strong> <span class="highlight">"${value}"</span></div>`;
+            }
+
+            results.innerHTML = preview;
+            log('Form data simulation completed', 'success');
+        }
+
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = 'Results cleared';
+            document.getElementById('debug-info').innerHTML = 'Debug info cleared';
+            log('Results cleared', 'info');
+        }
+
+        // Initialize data structure display
+        document.getElementById('data-structure').innerHTML = `
+            <strong>Database Table: teachers</strong><br>
+            <strong>Frontend Arrays:</strong><br>
+            - selectedJabatans: ["Walikelas", "Mengaji"]<br>
+            - selectedUnits: [{code: "TKITWI01", name: "..."}, {code: "SDIT001", name: "..."}]<br><br>
+            <strong>Data Flow:</strong><br>
+            selectedJabatans[0] → jabatan (utama)<br>
+            selectedJabatans[1..n] → jabatan_tambahan<br>
+            selectedUnits[0] → tenant_id<br>
+            selectedUnits[1..n] → accessible_units (JSON)
+        `;
+
+        log('Test page initialized');
+    </script>
+</body>
+</html>

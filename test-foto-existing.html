@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Foto Existing Logic</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        .data { background-color: #f8f9fa; border-color: #dee2e6; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 300px; }
+        .highlight { background: #fff3cd; padding: 2px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Test Foto Existing Logic</h1>
+
+    <div class="test-section info">
+        <h3>1. Test Scenarios</h3>
+        <div>
+            <strong>Scenario A: Teacher with existing photo</strong><br>
+            - link_foto: "uploads/FOTO_MUH_FADLI.png" (exists)<br>
+            - Expected: Foto field optional, validation passes<br><br>
+
+            <strong>Scenario B: Teacher without photo</strong><br>
+            - link_foto: null/empty<br>
+            - Expected: Foto field required, validation requires photo<br><br>
+
+            <strong>Scenario C: Teacher uploads new photo</strong><br>
+            - Has existing photo + selects new file<br>
+            - Expected: Foto field stays optional, new photo replaces old
+        </div>
+    </div>
+
+    <div class="test-section data">
+        <h3>2. Test Teacher Data</h3>
+        <button onclick="testExistingPhoto()">Test Existing Photo (ID: 995)</button>
+        <button onclick="testNoPhoto()">Test No Photo (Mock)</button>
+        <div id="test-result" style="margin-top: 15px;"></div>
+    </div>
+
+    <div class="test-section success">
+        <h3>3. Expected Server Behavior</h3>
+        <div>
+            <strong>For existing photo:</strong><br>
+            ✅ Skip link_foto validation<br>
+            ✅ Keep existing link_foto in database<br>
+            ✅ Don't require new photo upload<br><br>
+
+            <strong>For no photo:</strong><br>
+            ✅ Require link_foto validation<br>
+            ✅ Require photo upload<br>
+            ✅ Fail validation if no photo
+        </div>
+    </div>
+
+    <div class="test-section info">
+        <h3>4. Code Logic Summary</h3>
+        <pre><strong>Server Logic:</strong>
+// Check existing photo before validation
+const hasExistingPhoto = teacher.link_foto && teacher.link_foto.trim() !== '';
+if (!hasExistingPhoto) {
+    requiredFields.push('link_foto'); // Only require if no existing photo
+}
+
+<strong>Client Logic:</strong>
+// Make foto field optional if existing photo found
+if (data.link_foto) {
+    document.getElementById('foto').required = false;
+}</pre>
+    </div>
+
+    <script>
+        async function testExistingPhoto() {
+            const resultDiv = document.getElementById('test-result');
+
+            resultDiv.innerHTML = '<div class="info">Testing teacher with existing photo...</div>';
+
+            try {
+                // Test API call to get teacher data
+                const response = await fetch('/api/teacher-data/995');
+                const data = await response.json();
+
+                if (data.link_foto) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Teacher has existing photo</strong><br>
+                            Photo path: <code>${data.link_foto}</code><br>
+                            <strong>Expected behavior:</strong><br>
+                            - Foto field: Optional<br>
+                            - Validation: Skip link_foto requirement<br>
+                            - Form submission: Should succeed
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="error">
+                            <strong>❌ Teacher has no photo</strong><br>
+                            link_foto: ${data.link_foto || 'null'}<br>
+                            <strong>Expected behavior:</strong><br>
+                            - Foto field: Required<br>
+                            - Validation: Require photo upload<br>
+                            - Form submission: Should fail without photo
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ API Error</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testNoPhoto() {
+            const resultDiv = document.getElementById('test-result');
+
+            resultDiv.innerHTML = `
+                <div class="info">
+                    <strong>Mock test for teacher without photo</strong><br>
+                    This would simulate a new teacher with no existing photo.<br>
+                    <strong>Expected behavior:</strong><br>
+                    - Foto field: Required<br>
+                    - Validation: Require photo upload<br>
+                    - Form submission: Fail without photo upload
+                </div>
+            `;
+        }
+
+        console.log('Foto existing logic test page loaded');
+    </script>
+</body>
+</html>

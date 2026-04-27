@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JavaScript Syntax Test</title>
+</head>
+<body>
+    <h1>JavaScript Syntax Test</h1>
+    <div id="result">Testing...</div>
+
+    <script>
+        try {
+            // Test basic syntax
+            console.log('Testing basic syntax...');
+
+            // Test function declaration
+            function testFunction() {
+                if (true) {
+                    return "test";
+                }
+            }
+
+            // Test DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', function() {
+                console.log('DOMContentLoaded works');
+            });
+
+            // Test async function
+            async function testAsync() {
+                try {
+                    const result = await Promise.resolve('test');
+                    return result;
+                } catch (error) {
+                    console.error('Async error:', error);
+                }
+            }
+
+            document.getElementById('result').innerHTML = '<div style="color: green;">✅ JavaScript syntax is valid</div>';
+
+        } catch (error) {
+            console.error('JavaScript syntax error:', error);
+            document.getElementById('result').innerHTML = `<div style="color: red;">❌ JavaScript syntax error: ${error.message}</div>`;
+        }
+    </script>
+</body>
+</html>

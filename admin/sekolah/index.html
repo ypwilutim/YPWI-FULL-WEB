@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YPWI Admin Sekolah</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f0f9ff; }
+        .active-link { background: #1f8a4a; color: white; border-radius: 1rem; }
+        .nav-item:not(.active-link):hover { background-color: #f9fafb; }
+        .card-shadow { box-shadow: 0 10px 25px -5px rgba(31, 138, 74, 0.1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <aside class="w-full md:w-72 bg-white border-r border-gray-100 flex flex-col sticky top-0 h-screen z-50 hidden md:block relative">
+        <button onclick="toggleSidebar()" class="md:hidden absolute top-4 right-4 text-gray-600 hover:text-gray-800 z-10"><i class="bi bi-x-lg text-xl"></i></button>
+<div class="p-8 border-b border-gray-50 text-center">
+            <img src="../../assets/images/YPWI LOGO HITAM.png" alt="YPWI" height="35" class="mx-auto mb-2">
+            <h1 class="text-xl font-black text-[#1f8a4a]">YPWI <span class="text-[#93d5f4]">SEKOLAH</span></h1>
+            <p class="text-[10px] text-gray-400 font-bold tracking-[0.2em]">ADMIN</p>
+        </div>
+
+        <nav class="flex-1 p-6 space-y-6 overflow-y-auto">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase mb-4 px-2">Menu</p>
+                <div class="space-y-1">
+                    <button onclick="renderRoute('overview')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-grid-1x2-fill"></i> Overview
+                    </button>
+                    <button onclick="renderRoute('guru')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-person-badge"></i> Kelola Guru
+                    </button>
+                    <button onclick="renderRoute('siswa')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-people-fill"></i> Kelola Siswa
+                    </button>
+                    <button onclick="renderRoute('absensi')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-qr-code-scan"></i> Absensi
+                    </button>
+                    <a href="../../absensi/absensi.html" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-camera"></i> Scanner
+                    </a>
+                    <button onclick="renderRoute('laporan')" class="nav-item w-full flex items-center gap-3 p-3 text-sm font-semibold text-gray-600 hover:bg-gray-50 rounded-xl transition">
+                        <i class="bi bi-file-earmark-text"></i> Laporan
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="p-6 bg-gray-50 m-4 rounded-2xl">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-[#1f8a4a] rounded-xl flex items-center justify-center text-white font-bold" id="userInitial">A</div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-gray-800 truncate" id="userName">Admin Sekolah</p>
+                    <p class="text-[10px] text-gray-400" id="userUnit">YPWI System</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header class="bg-white/80 backdrop-blur-md border-b border-gray-100 p-6 flex justify-between items-center sticky top-0 z-40">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleSidebar()" class="md:hidden text-gray-600"><i class="bi bi-list"></i></button>
+                <h2 id="page-title" class="text-xl font-extrabold text-gray-800">Admin Sekolah</h2>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="logout()" class="text-gray-400 hover:text-gray-600"><i class="bi bi-box-arrow-right"></i></button>
+            </div>
+        </header>
+
+        <div id="app-viewport" class="p-8 overflow-y-auto max-h-[calc(100vh-80px)]"></div>
+    </main>
+
+    <script>
+        const token = localStorage.getItem('token');
+        const tenant = localStorage.getItem('tenant');
+        if (!token) { window.location.href = '/login.html'; }
+
+        document.getElementById('userName').textContent = localStorage.getItem('userName') || 'Admin';
+        document.getElementById('userInitial').textContent = (localStorage.getItem('userName') || 'A')[0].toUpperCase();
+
+        async function loadStats() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            const [guruRes, absensiRes] = await Promise.all([
+                fetch('/api/all-teachers'),
+                fetch(`/api/attendance-report?bulan=${today.substring(5,7)}&tahun=${today.substring(0,4)}&unit=${tenant}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                })
+            ]);
+
+            const guru = await guruRes.json();
+            const absensi = await absensiRes.json();
+
+            const guruUnit = guru.filter(g => g.tenant_id === tenant);
+            const totalGuru = guruUnit.length;
+            const absensiHariIni = absensi.filter(a => a.tanggal === today);
+
+            return { totalGuru, absensiHariIni: absensiHariIni.length };
+        }
+
+        function renderRoute(route) {
+            const viewport = document.getElementById('app-viewport');
+            const title = document.getElementById('page-title');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-link', 'text-white'));
+            const activeBtn = document.querySelector(`button[onclick="renderRoute('${route}')"]`);
+            if (activeBtn) activeBtn.classList.add('active-link', 'text-white');
+
+            let html = '';
+            switch(route) {
+                case 'overview':
+                    title.innerText = "Overview";
+                    html = `<div id="overview-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'guru':
+                    title.innerText = "Kelola Guru";
+                    html = `<div id="guru-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'siswa':
+                    title.innerText = "Kelola Siswa";
+                    html = `<div id="siswa-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'absensi':
+                    title.innerText = "Absensi";
+                    html = `<div id="absensi-content"><div class="text-center py-8">Loading...</div></div>`;
+                    break;
+                case 'laporan':
+                    title.innerText = "Laporan";
+                    html = `
+                        <div class="bg-white rounded-3xl card-shadow p-8">
+                            <h3 class="text-xl font-bold mb-6">Laporan Absensi</h3>
+                            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                                <div>
+                                    <label class="block text-sm font-semibold mb-2">Bulan</label>
+                                    <input type="month" id="laporan-bulan" class="w-full p-3 border rounded-xl" value="${new Date().toISOString().slice(0,7)}">
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="cetakLaporan()" class="bg-[#1f8a4a] text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700">
+                                        <i class="bi bi-printer me-2"></i> Cetak Laporan
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="laporan-table" class="overflow-x-auto"></div>
+                        </div>`;
+                    break;
+            }
+            viewport.innerHTML = html;
+
+            if (route === 'overview') loadOverview();
+            if (route === 'guru') loadGuru();
+            if (route === 'siswa') loadSiswa();
+            if (route === 'absensi') loadAbsensi();
+        }
+
+        async function loadOverview() {
+            const stats = await loadStats();
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('overview-content').innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="md:col-span-2 space-y-8">
+                        <div class="bg-gradient-to-r from-[#1f8a4a] to-[#2d6a4f] p-10 rounded-[3rem] text-white card-shadow">
+                            <h1 class="text-3xl font-black mb-2 italic">Selamat Datang!</h1>
+                            <p class="opacity-80 text-sm mb-6">Kelola sekolah dengan efisien.</p>
+                            <p class="text-sm opacity-60">Unit: ${tenant}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-people text-green-600 text-xl"></i>
+                        </div>
+                        <p class="text-3xl font-black text-gray-800">0</p>
+                        <p class="text-sm text-gray-500">Total Siswa</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-person-badge text-blue-600 text-xl"></i>
+                        </div>
+                        <p class="text-3xl font-black text-gray-800">${stats.totalGuru}</p>
+                        <p class="text-sm text-gray-500">Total Guru</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-check-circle text-purple-600 text-xl"></i>
+                        </div>
+                        <p class="text-3xl font-black text-gray-800">${stats.totalGuru > 0 ? Math.round((stats.absensiHariIni / stats.totalGuru) * 100) : 0}%</p>
+                        <p class="text-sm text-gray-500">Kehadiran Hari Ini</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl card-shadow">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center mb-4">
+                            <i class="bi bi-qr-code-scan text-yellow-600 text-xl"></i>
+                        </div>
+                        <p class="text-3xl font-black text-gray-800">${stats.absensiHariIni}</p>
+                        <p class="text-sm text-gray-500">Absensi Hari Ini</p>
+                    </div>
+                </div>`;
+        }
+
+        async function loadGuru() {
+            const res = await fetch('/api/all-teachers');
+            const allGuru = await res.json();
+            const guru = allGuru.filter(g => g.tenant_id === tenant);
+
+            document.getElementById('guru-content').innerHTML = `
+                <div class="bg-white rounded-3xl card-shadow p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">Data Guru</h3>
+                        <button onclick="showTambahGuru()" class="bg-[#1f8a4a] text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700">
+                            <i class="bi bi-plus"></i> Tambah
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">NIY</th>
+                                    <th class="p-3">Jabatan</th>
+                                    <th class="p-3">Sebagai</th>
+                                    <th class="p-3">No WA</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${guru.length ? guru.map(g => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3 font-semibold">${g.nama || '-'}</td>
+                                    <td class="p-3">${g.niy || '-'}</td>
+                                    <td class="p-3">${g.jabatan || '-'}</td>
+                                    <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs font-bold">${g.sebagai || 'Guru'}</span></td>
+                                    <td class="p-3">${g.no_wa || '-'}</td>
+                                    <td class="p-3">
+                                        <button onclick="editGuru(${g.id})" class="text-blue-500 hover:text-blue-700"><i class="bi bi-pencil"></i></button>
+                                        <button onclick="hapusGuru(${g.id})" class="text-red-500 hover:text-red-700 ml-2"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                                `).join('') : '<tr><td colspan="6" class="p-4 text-center text-gray-400">Belum ada data guru</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        async function loadSiswa() {
+            const res = await fetch('/api/students', { headers: { 'Authorization': `Bearer ${token}` } });
+            const siswa = res.ok ? await res.json() : [];
+            const siswaUnit = siswa.filter(s => s.tenant_id === tenant);
+
+            document.getElementById('siswa-content').innerHTML = `
+                <div class="bg-white rounded-3xl card-shadow p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold">Data Siswa</h3>
+                        <button onclick="showTambahSiswa()" class="bg-[#1f8a4a] text-white px-4 py-2 rounded-xl font-bold hover:bg-green-700">
+                            <i class="bi bi-plus"></i> Tambah
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">NIS</th>
+                                    <th class="p-3">Kelas</th>
+                                    <th class="p-3">Jurusan</th>
+                                    <th class="p-3">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${siswaUnit.length ? siswaUnit.map(s => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3 font-semibold">${s.nama || '-'}</td>
+                                    <td class="p-3">${s.nis || '-'}</td>
+                                    <td class="p-3">${s.kelas || '-'}</td>
+                                    <td class="p-3">${s.jurusan || '-'}</td>
+                                    <td class="p-3">
+                                        <button class="text-blue-500 hover:text-blue-700"><i class="bi bi-pencil"></i></button>
+                                        <button class="text-red-500 hover:text-red-700 ml-2"><i class="bi bi-trash"></i></button>
+                                    </td>
+                                </tr>
+                                `).join('') : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada data siswa</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>`;
+        }
+
+        async function loadAbsensi() {
+            const today = new Date();
+            const bulan = String(today.getMonth() + 1).padStart(2, '0');
+            const tahun = today.getFullYear();
+
+            const res = await fetch(`/api/attendance-detail?bulan=${bulan}&tahun=${tahun}&unit=${tenant}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = res.ok ? await res.json() : [];
+
+            document.getElementById('absensi-content').innerHTML = `
+                <div class="bg-white rounded-3xl card-shadow p-8">
+                    <h3 class="text-xl font-bold mb-6">Riwayat Absensi Bulan Ini</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b bg-gray-50">
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">Nama</th>
+                                    <th class="p-3">Jam</th>
+                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Keterangan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.length ? data.slice(0, 50).map(a => `
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="p-3">${new Date(a.tanggal).toLocaleDateString('id-ID')}</td>
+                                    <td class="p-3 font-semibold">${a.nama}</td>
+                                    <td class="p-3">${a.jam ? a.jam.substring(0,5) : '-'}</td>
+                                    <td class="p-3"><span class="px-2 py-1 bg-green-100 text-green-700 rounded-lg text-xs">${a.status || 'Datang'}</span></td>
+                                    <td class="p-3">${a.keterangan || '-'}</td>
+                                </tr>
+                                `).join('') : '<tr><td colspan="5" class="p-4 text-center text-gray-400">Belum ada absensi bulan ini</td></tr>'}
+                            </tbody>
+                        </table>
+                    </div>
+                    ${data.length > 50 ? `<p class="text-sm text-gray-500 mt-4 text-center">Menampilkan 50 data terakhir</p>` : ''}
+                </div>`;
+        }
+
+        function showTambahGuru() {
+            const html = `
+                <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div class="bg-white rounded-3xl p-8 w-full max-w-md">
+                        <h3 class="text-xl font-bold mb-4">Tambah Guru</h3>
+                        <div class="space-y-4">
+                            <input type="text" id="guru-nama" placeholder="Nama Lengkap" class="w-full p-3 border rounded-xl">
+                            <input type="text" id="guru-niy" placeholder="NIY" class="w-full p-3 border rounded-xl">
+                            <input type="text" id="guru-jabatan" placeholder="Jabatan" class="w-full p-3 border rounded-xl">
+                            <select id="guru-sebagai" class="w-full p-3 border rounded-xl">
+                                <option value="Guru">Guru</option>
+                                <option value="Wali Kelas">Wali Kelas</option>
+                                <option value="Admin/TU/Operator/Staf">Admin/TU/Operator/Staf</option>
+                            </select>
+                            <input type="text" id="guru-wa" placeholder="No WA" class="w-full p-3 border rounded-xl">
+                            <input type="email" id="guru-email" placeholder="Email" class="w-full p-3 border rounded-xl">
+                        </div>
+                        <div class="flex gap-4 mt-6">
+                            <button onclick="simpanGuru()" class="flex-1 bg-[#1f8a4a] text-white py-3 rounded-xl font-bold hover:bg-green-700">Simpan</button>
+                            <button onclick="document.getElementById('modal-guru').remove()" class="flex-1 bg-gray-200 text-gray-700 py-3 rounded-xl font-bold">Batal</button>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        async function simpanGuru() {
+            const data = {
+                nama: document.getElementById('guru-nama').value,
+                niy: document.getElementById('guru-niy').value,
+                jabatan: document.getElementById('guru-jabatan').value,
+                sebagai: document.getElementById('guru-sebagai').value,
+                no_wa: document.getElementById('guru-wa').value,
+                email: document.getElementById('guru-email').value,
+                tenant_id: tenant
+            };
+
+            const res = await fetch('/api/teachers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify(data)
+            });
+
+            if (res.ok) {
+                alert('Guru berhasil ditambahkan!');
+                loadGuru();
+                document.getElementById('modal-guru')?.remove();
+            } else {
+                alert('Gagal menambah guru');
+            }
+        }
+
+        async function hapusGuru(id) {
+            if (!confirm('Yakin hapus guru ini?')) return;
+            const res = await fetch(`/api/teachers/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (res.ok) { alert('Dihapus!'); loadGuru(); }
+            else { alert('Gagal!'); }
+        }
+
+        function toggleSidebar() {
+            document.querySelector('aside').classList.toggle('hidden');
+        }
+
+        function logout() {
+            localStorage.clear();
+            window.location.href = '/login.html';
+        }
+
+        renderRoute('overview');
+    </script>
+</body>
+</html>

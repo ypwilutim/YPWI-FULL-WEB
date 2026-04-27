@@ -1,0 +1,1331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lengkapi Data Pribadi - YPWI Luwu Timur</title>
+
+    <!-- Bootstrap CSS with fallback -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" onerror="this.onerror=null; this.href='data:text/css;base64,Ym9keSB7IGZvbnQtZmFtaWx5OiAtYXBwbGUtc3lzdGVtLCBCbGlua01hY0B5c3RlbU9uZSwgJ1NlZ29lIFVJJywgUm9ib3RvLCBIZWx2ZXRpY2EsIEFyaWFsLCBzYW5zLXNlcmlmOyB9IC5jb250YWluZXIgeyBtYXgtd2lkdGg6IDEyMDBweDsgfSAuZm9ybS1jb250cm9sIHsgYm9yZGVyOiAxcHggc29saWQgI2NjYzsgcGFkZGluZzogMC41cmVtIDFyZW07IGJvcmRlci1yYWRpdXM6IDAuNWVtfSAuYnRuIHsgYmFja2dyb3VuZC1jb2xvcjogIzAwNzFmZjsgYm9yZGVyOiBub25lOyBjb2xvcjogd2hpdGU7IHBhZGRpbmc6IDAuNzVyZW0gMXJlbTsgYm9yZGVyLXJhZGl1czogMC41cmVtOyB0ZXh0LWRlY29yYXRpb246IG5vbmU7IGN1cnNvcjogcG9pbnRlcjsgdHJhbnNpdGlvbjogYWxsIDAuMnM7IH0gLmJ0bjpodmVyeyBiYWNrZ3JvdW5kLWNvbG9yOiAjMDA1NmI0OyB9'">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" onerror="this.onerror=null; this.href='data:text/css;base64,'">
+
+    <!-- Google Fonts with fallback -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet" onerror="this.onerror=null; this.style.fontFamily='system-ui, -apple-system, sans-serif'">
+
+    <style>
+        :root {
+            --primary-blue: #93d5f4;
+            --deep-green: #1f8a4a;
+            --bright-yellow: #eae830;
+            --soft-bg: #f8fdff;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #2d3436;
+            background-color: var(--soft-bg);
+        }
+
+        .navbar {
+            background-color: rgba(147, 213, 244, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 3px solid var(--bright-yellow);
+            padding: 15px 0;
+        }
+        .navbar-brand { font-weight: 800; color: var(--deep-green) !important; font-size: 1.5rem; }
+        .nav-link { color: #064e3b !important; font-weight: 600; padding: 0 15px !important; }
+
+        .form-container { padding: 50px 0; }
+        .form-card {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(147, 213, 244, 0.25);
+            padding: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .form-title {
+            color: var(--deep-green);
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-label { font-weight: 600; color: var(--deep-green); }
+        .form-control, .form-select {
+            border: 2px solid #e3f2fd;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 0.95rem;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 0.2rem rgba(147, 213, 244, 0.25);
+        }
+        .btn-submit {
+            background: linear-gradient(135deg, var(--deep-green), var(--primary-blue));
+            color: white;
+            border: none;
+            border-radius: 25px;
+            padding: 15px 40px;
+            font-weight: 600;
+            font-size: 1rem;
+            width: 100%;
+            transition: all 0.3s ease;
+        }
+        .btn-submit:hover {
+            background: linear-gradient(135deg, var(--primary-blue), var(--deep-green));
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(147, 213, 244, 0.3);
+        }
+
+        .tag-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            background: var(--primary-blue);
+            color: white;
+        }
+
+        .tag-badge .btn-close {
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+        }
+
+        .unit-item, .jabatan-item {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #e9ecef;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .unit-item:hover, .jabatan-item:hover {
+            background-color: rgba(147, 213, 244, 0.1);
+        }
+
+        .unit-item:last-child, .jabatan-item:last-child {
+            border-bottom: none;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .conditional-field {
+            transition: all 0.3s ease;
+        }
+
+        .notification-section {
+            background: rgba(31, 138, 74, 0.05);
+            border: 1px solid rgba(31, 138, 74, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(147, 213, 244, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary-blue);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .photo-upload {
+            border: 2px dashed #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .photo-upload:hover {
+            border-color: var(--primary-blue);
+            background: rgba(147, 213, 244, 0.05);
+        }
+
+        .photo-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: none;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast-custom {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+            max-width: 350px;
+        }
+
+        #selected-unit-display {
+            background-color: rgba(147, 213, 244, 0.1);
+            border: 2px solid var(--primary-blue);
+            color: var(--deep-green);
+            font-weight: 600;
+        }
+
+        #selected-unit-display:hover {
+            background-color: rgba(147, 213, 244, 0.2);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light fixed-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/assets/images/YPWI LOGO HITAM.png" alt="YPWI Logo" width="40" height="40" class="me-2" onerror="this.style.display='none'">
+                <span>YPWI Luwu Timur</span>
+            </a>
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="/guru/index.html">
+                    <i class="bi bi-house-door me-1"></i>Dashboard
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="form-container">
+        <div class="container">
+            <div class="form-card fade-in">
+                <h1 class="form-title">
+                    <i class="bi bi-person-circle me-2"></i>
+                    Lengkapi Data Pribadi
+                </h1>
+
+                <!-- Loading State -->
+                <div id="loading-state" class="text-center py-5">
+                    <div class="loading-spinner mx-auto mb-3"></div>
+                    <p class="text-muted">Memuat data guru...</p>
+                </div>
+
+                <!-- Form -->
+                <form id="completeProfileForm" enctype="multipart/form-data" style="display: none;">
+                    <input type="hidden" name="teacherId" id="teacherId">
+
+                    <div class="row">
+                        <!-- Kolom Kiri -->
+                        <div class="col-lg-6">
+                            <!-- Nama -->
+                            <div class="mb-3">
+                                <label for="nama" class="form-label required-field">Nama Lengkap</label>
+                                <input type="text" class="form-control" id="nama" name="nama" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label required-field">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+
+                            <!-- NIY (Conditional) -->
+                            <div class="mb-3">
+                                <label for="niy" class="form-label" id="niy-label">
+                                    NIY
+                                    <small class="text-muted d-block" id="niy-note">
+                                        Jika TMT kurang dari 2 tahun, boleh dikosongkan
+                                    </small>
+                                </label>
+                                <input type="text" class="form-control" id="niy" name="niy">
+                            </div>
+
+                            <!-- NIK -->
+                            <div class="mb-3">
+                                <label for="nik" class="form-label required-field">NIK</label>
+                                <input type="text" class="form-control" id="nik" name="nik" required>
+                            </div>
+
+                            <!-- Jenis Kelamin -->
+                            <div class="mb-3">
+                                <label for="jenis_kelamin" class="form-label required-field">Jenis Kelamin</label>
+                                <select class="form-select" id="jenis_kelamin" name="jenis_kelamin" required>
+                                    <option value="">Pilih Jenis Kelamin</option>
+                                    <option value="Laki-laki">Laki-laki</option>
+                                    <option value="Perempuan">Perempuan</option>
+                                </select>
+                            </div>
+
+                            <!-- Tempat Lahir -->
+                            <div class="mb-3">
+                                <label for="tempat_lahir" class="form-label required-field">Tempat Lahir</label>
+                                <input type="text" class="form-control" id="tempat_lahir" name="tempat_lahir" required>
+                            </div>
+
+                            <!-- Tanggal Lahir -->
+                            <div class="mb-3">
+                                <label for="tanggal_lahir" class="form-label required-field">Tanggal Lahir</label>
+                                <input type="date" class="form-control" id="tanggal_lahir" name="tanggal_lahir" required>
+                            </div>
+
+                            <!-- Alamat -->
+                            <div class="mb-3">
+                                <label for="alamat" class="form-label required-field">Alamat Lengkap</label>
+                                <textarea class="form-control" id="alamat" name="alamat" rows="3" required></textarea>
+                            </div>
+
+                            <!-- No. WhatsApp -->
+                            <div class="mb-3">
+                                <label for="no_wa" class="form-label required-field">No. WhatsApp</label>
+                                <input type="tel" class="form-control" id="no_wa" name="no_wa" placeholder="08xxxxxxxxx" required>
+                                <small class="text-muted">Akan dinormalisasi ke format 62xxxxxxxxx</small>
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan -->
+                        <div class="col-lg-6">
+                            <!-- Jenjang -->
+                            <div class="mb-3">
+                                <label for="jenjang" class="form-label required-field">Jenjang</label>
+                                <select class="form-select" id="jenjang" name="jenjang" required>
+                                    <option value="">Pilih Jenjang</option>
+                                    <option value="01 TKIT">TKIT</option>
+                                    <option value="02 SDIT">SDIT</option>
+                                    <option value="03 SMPIT">SMPIT</option>
+                                    <option value="04 SMAIT">SMAIT</option>
+                                    <option value="06 YPWI">YPWI Pusat</option>
+                                </select>
+                            </div>
+
+                            <!-- Jabatan -->
+                            <div class="mb-3">
+                                <label for="jabatan" class="form-label required-field">Jabatan</label>
+                                <div class="input-group">
+                                    <select class="form-select" id="jabatan" name="jabatan" required>
+                                        <option value="">Pilih Jabatan</option>
+                                        <option value="Ketua">Ketua</option>
+                                        <option value="Kepala Sekolah">Kepala Sekolah</option>
+                                        <option value="Walikelas">Walikelas</option>
+                                        <option value="Mapel">Guru Mapel</option>
+                                        <option value="Mengaji">Guru Mengaji</option>
+                                        <option value="TU">Tata Usaha</option>
+                                        <option value="Bendahara">Bendahara</option>
+                                        <option value="Lainnya">Lainnya</option>
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary" onclick="addJabatan()">
+                                        <i class="bi bi-plus-circle"></i>
+                                    </button>
+                                </div>
+                                <div id="jabatan-tags" class="mt-2"></div>
+                            </div>
+
+                            <!-- Unit Sekolah -->
+                            <div class="mb-3">
+                                <label for="tenant_id" class="form-label required-field">Unit Sekolah</label>
+                                <div class="input-group">
+                                    <!-- Hidden input for actual form submission (required for validation) -->
+                                    <input type="hidden" id="tenant_id_hidden" name="tenant_id" required>
+                                    <!-- Visual select (not required, just for show) -->
+                                    <select class="form-select" id="tenant_id" style="display: none;">
+                                        <option value="">Pilih Unit Sekolah</option>
+                                        <!-- Options will be populated by JavaScript -->
+                                    </select>
+                                    <!-- Display selected unit -->
+                                    <div id="selected-unit-display" class="form-control d-flex align-items-center justify-content-between" style="display: none;">
+                                        <span id="selected-unit-text"></span>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addUnit()">
+                                            <i class="bi bi-pencil"></i> Tambah
+                                        </button>
+                                    </div>
+                                    <!-- Show select when no unit selected -->
+                                    <div id="unit-select-container">
+                                        <button type="button" class="btn btn-outline-primary w-100" onclick="addUnit()">
+                                            <i class="bi bi-plus-circle me-1"></i>Pilih Unit Sekolah
+                                        </button>
+                                    </div>
+                                </div>
+                                <div id="unit-tags" class="mt-2"></div>
+                            </div>
+
+                            <!-- Sebagai -->
+                            <div class="mb-3">
+                                <label for="sebagai" class="form-label required-field">Sebagai</label>
+                                <select class="form-select" id="sebagai" name="sebagai" required>
+                                    <option value="">Pilih Peran</option>
+                                    <option value="Guru">Guru</option>
+                                    <option value="Karyawan">Karyawan</option>
+                                    <option value="Staf">Staf</option>
+                                </select>
+                            </div>
+
+                            <!-- Status Kepegawaian -->
+                            <div class="mb-3">
+                                <label for="status_kepegawaian" class="form-label required-field">Status Kepegawaian</label>
+                                <select class="form-select" id="status_kepegawaian" name="status_kepegawaian" required>
+                                    <option value="">Pilih Status</option>
+                                    <option value="PNS">PNS</option>
+                                    <option value="PTY">PTY</option>
+                                    <option value="Honor">Honor</option>
+                                    <option value="Kontrak">Kontrak</option>
+                                </select>
+                            </div>
+
+                            <!-- Status Aktif -->
+                            <div class="mb-3">
+                                <label for="status_aktif" class="form-label required-field">Status Aktif</label>
+                                <select class="form-select" id="status_aktif" name="status_aktif" required>
+                                    <option value="">Pilih Status</option>
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Tidak Aktif">Tidak Aktif</option>
+                                </select>
+                            </div>
+
+                            <!-- Tanggal Masuk (TMT) -->
+                            <div class="mb-3">
+                                <label for="tmt" class="form-label required-field">Tanggal Masuk (TMT)</label>
+                                <input type="date" class="form-control" id="tmt" name="tmt" required>
+                            </div>
+
+                            <!-- Keterangan -->
+                            <div class="mb-3">
+                                <label for="keterangan" class="form-label required-field">Keterangan</label>
+                                <textarea class="form-control" id="keterangan" name="keterangan" rows="2" required></textarea>
+                            </div>
+
+                            <!-- Upload Foto -->
+                            <div class="mb-3">
+                                <label for="foto" class="form-label required-field" id="foto-label">Upload Foto</label>
+                                <div class="photo-upload">
+                                    <input type="file" class="form-control d-none" id="foto" name="foto" accept="image/*" onchange="previewPhoto(this)">
+                                    <div onclick="document.getElementById('foto').click()">
+                                        <i class="bi bi-camera-fill text-primary" style="font-size: 2rem;"></i>
+                                        <p class="mb-0 mt-2">Klik untuk upload foto</p>
+                                        <small class="text-muted">Format: JPG, PNG, Max: 2MB</small>
+                                    </div>
+                                    <img id="photo-preview" class="photo-preview" alt="Foto">
+                                </div>
+                                <div id="existing-photo-info" class="mt-2" style="display: none;">
+                                    <small class="text-success">
+                                        <i class="bi bi-check-circle-fill me-1"></i>
+                                        Foto sudah tersimpan di database
+                                    </small>
+                                </div>
+                            </div>
+
+                            <!-- Terima Notifikasi (Conditional) -->
+                            <div class="mb-3" id="notification-section" style="display: none;">
+                                <div class="notification-section">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="terima_notifikasi" name="terima_notifikasi" value="1">
+                                        <label class="form-check-label fw-bold" for="terima_notifikasi">
+                                            <i class="bi bi-bell-fill text-success me-1"></i>
+                                            Terima Notifikasi WhatsApp
+                                        </label>
+                                    </div>
+                                    <small class="text-muted">Aktifkan untuk menerima notifikasi penting via WhatsApp</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-submit">
+                            <i class="bi bi-check-circle-fill me-2"></i>Simpan Data Pribadi
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Error State -->
+                <div id="error-state" class="text-center py-5" style="display: none;">
+                    <div class="text-danger mb-3">
+                        <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem;"></i>
+                    </div>
+                    <h5 class="text-danger">Terjadi Kesalahan</h5>
+                    <p class="text-muted" id="error-message">Tidak dapat memuat data. Silakan refresh halaman.</p>
+                    <button onclick="location.reload()" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Refresh Halaman
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <!-- Jabatan Modal -->
+    <div class="modal fade" id="jabatanModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tambah Jabatan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Pilih Jabatan</label>
+                        <select class="form-select" id="jabatanSelect">
+                            <option value="">Pilih Jabatan</option>
+                            <option value="Ketua">Ketua</option>
+                            <option value="Kepala Sekolah">Kepala Sekolah</option>
+                            <option value="Walikelas">Walikelas</option>
+                            <option value="Mapel">Guru Mapel</option>
+                            <option value="Mengaji">Guru Mengaji</option>
+                            <option value="TU">Tata Usaha</option>
+                            <option value="Bendahara">Bendahara</option>
+                            <option value="Lainnya">Lainnya</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="customJabatanDiv" style="display: none;">
+                        <label class="form-label">Jabatan Lainnya</label>
+                        <input type="text" class="form-control" id="customJabatan" placeholder="Masukkan jabatan lainnya">
+                    </div>
+                    <button type="button" class="btn btn-primary w-100" onclick="addJabatanToList()">
+                        <i class="bi bi-plus-circle me-1"></i>Tambah Jabatan
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unit Modal -->
+    <div class="modal fade" id="unitModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Pilih Unit Sekolah</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="unitSearch" placeholder="Cari unit sekolah...">
+                    </div>
+                    <div id="unitList" style="max-height: 300px; overflow-y: auto;">
+                        <!-- Units will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        console.log('=== COMPLETE-PROFILE.JS LOADED ===');
+
+        // Global variables
+        let selectedUnits = [];
+        let selectedJabatans = [];
+        let allUnits = [];
+
+        // Toast function
+        function showToast(message, type = 'info') {
+            const toastContainer = document.getElementById('toast-container');
+
+            const toastEl = document.createElement('div');
+            toastEl.className = 'toast toast-custom align-items-center text-white border-0';
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+
+            const bgClass = type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-info';
+            toastEl.classList.add(bgClass);
+
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="bi ${type === 'success' ? 'bi-check-circle-fill' : type === 'error' ? 'bi-exclamation-triangle-fill' : 'bi-info-circle-fill'} me-2"></i>
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toastEl);
+
+            const toast = new bootstrap.Toast(toastEl);
+            toast.show();
+
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
+        }
+
+        // Display existing photo from database
+        function displayExistingPhoto(photoPath) {
+            console.log('displayExistingPhoto called with:', photoPath);
+
+            const preview = document.getElementById('photo-preview');
+            const uploadArea = document.querySelector('.photo-upload div[onclick]');
+            const existingPhotoInfo = document.getElementById('existing-photo-info');
+            const fotoLabel = document.getElementById('foto-label');
+
+            // Validate elements exist
+            if (!preview) {
+                console.error('photo-preview element not found');
+                return;
+            }
+            if (!uploadArea) {
+                console.error('photo-upload div[onclick] element not found');
+                return;
+            }
+            if (!existingPhotoInfo) {
+                console.error('existing-photo-info element not found');
+                return;
+            }
+            if (!fotoLabel) {
+                console.error('foto-label element not found');
+                return;
+            }
+
+            if (photoPath) {
+                // Show existing photo
+                const fullPath = '/' + photoPath + '?t=' + Date.now(); // Cache busting
+                console.log('Loading existing photo from:', fullPath);
+
+                preview.src = fullPath;
+                preview.style.display = 'block';
+
+                // Add error handling for image loading
+                preview.onerror = function() {
+                    console.error('Failed to load image from:', fullPath);
+                    console.error('Photo path from database:', photoPath);
+                    showToast('Gagal memuat foto yang sudah ada', 'error');
+
+                    // Hide preview and show upload area
+                    preview.style.display = 'none';
+                    uploadArea.innerHTML = `
+                        <i class="bi bi-exclamation-triangle-fill text-danger" style="font-size: 2rem;"></i>
+                        <p class="mb-0 mt-2 text-danger">Foto tidak dapat dimuat</p>
+                        <small class="text-muted">Silakan upload foto baru</small>
+                    `;
+                };
+
+                preview.onload = function() {
+                    console.log('Photo loaded successfully:', fullPath);
+                };
+
+                // Update upload area text
+                uploadArea.innerHTML = `
+                    <i class="bi bi-camera-fill text-primary" style="font-size: 2rem;"></i>
+                    <p class="mb-0 mt-2">Foto sudah ada - Klik untuk mengganti</p>
+                    <small class="text-muted">Format: JPG, PNG, Max: 2MB</small>
+                `;
+
+                // Show existing photo info
+                existingPhotoInfo.style.display = 'block';
+                existingPhotoInfo.innerHTML = `
+                    <small class="text-success">
+                        <i class="bi bi-check-circle-fill me-1"></i>
+                        Foto sudah tersimpan: <strong>${photoPath.split('/').pop()}</strong>
+                    </small>
+                `;
+
+                // Update label to indicate photo is optional
+                fotoLabel.innerHTML = 'Upload Foto <small class="text-muted">(opsional - foto sudah ada)</small>';
+                fotoLabel.classList.remove('required-field');
+
+                // Make file input optional when photo exists
+                document.getElementById('foto').required = false;
+
+                console.log('Existing photo displayed:', photoPath);
+            }
+        }
+
+        // Photo preview for new uploads
+        function previewPhoto(input) {
+            const preview = document.getElementById('photo-preview');
+            const uploadArea = document.querySelector('.photo-upload div[onclick]');
+            const existingPhotoInfo = document.getElementById('existing-photo-info');
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+
+                    // Update text to indicate new photo will replace existing
+                    uploadArea.innerHTML = `
+                        <i class="bi bi-camera-fill text-success" style="font-size: 2rem;"></i>
+                        <p class="mb-0 mt-2">Foto baru: ${file.name}</p>
+                        <small class="text-muted">Size: ${(file.size / 1024 / 1024).toFixed(2)} MB</small>
+                    `;
+
+                    // Update existing photo info
+                    existingPhotoInfo.innerHTML = `
+                        <small class="text-warning">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                            Foto baru akan mengganti foto yang sudah ada
+                        </small>
+                    `;
+                };
+
+                reader.readAsDataURL(file);
+
+                // Make file input required when new file selected (only if no existing photo)
+                const hasExistingPhoto = document.querySelector('#existing-photo-info') &&
+                                        document.querySelector('#existing-photo-info').style.display !== 'none';
+                if (!hasExistingPhoto) {
+                    input.required = true;
+                }
+
+                console.log('New photo selected:', file.name, 'Size:', file.size, 'bytes');
+            }
+        }
+
+        // Add jabatan
+        function addJabatan() {
+            const modal = new bootstrap.Modal(document.getElementById('jabatanModal'));
+            modal.show();
+        }
+
+        // Add jabatan to list
+        function addJabatanToList() {
+            const select = document.getElementById('jabatanSelect');
+            const customInput = document.getElementById('customJabatan');
+            let selectedValue = select.value;
+
+            if (selectedValue === 'Lainnya') {
+                selectedValue = customInput.value.trim();
+                if (!selectedValue) {
+                    showToast('Masukkan jabatan lainnya', 'error');
+                    return;
+                }
+            }
+
+            if (!selectedValue) {
+                showToast('Pilih jabatan terlebih dahulu', 'error');
+                return;
+            }
+
+            if (selectedJabatans.includes(selectedValue)) {
+                showToast('Jabatan sudah ditambahkan', 'warning');
+                return;
+            }
+
+            selectedJabatans.push(selectedValue);
+            renderJabatanTags();
+
+            // Close modal and reset
+            const modal = bootstrap.Modal.getInstance(document.getElementById('jabatanModal'));
+            modal.hide();
+            select.value = '';
+            customInput.value = '';
+            document.getElementById('customJabatanDiv').style.display = 'none';
+
+            // Check if notification should be shown
+            checkNotificationVisibility();
+        }
+
+        // Remove jabatan
+        function removeJabatan(index) {
+            selectedJabatans.splice(index, 1);
+            renderJabatanTags();
+            checkNotificationVisibility();
+        }
+
+        // Render jabatan tags
+        function renderJabatanTags() {
+            const container = document.getElementById('jabatan-tags');
+            container.innerHTML = '';
+
+            selectedJabatans.forEach((jabatan, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'tag-badge';
+                tag.innerHTML = `
+                    ${jabatan}
+                    <button type="button" class="btn-close" onclick="removeJabatan(${index})" aria-label="Remove"></button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        // Add unit
+        function addUnit() {
+            loadUnitsForModal();
+            const modal = new bootstrap.Modal(document.getElementById('unitModal'));
+            modal.show();
+        }
+
+        // Load units for modal
+        function loadUnitsForModal() {
+            const token = localStorage.getItem('token');
+            const headers = {};
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            fetch('/api/tenants', {
+                headers: headers
+            })
+                .then(res => res.json())
+                .then(units => {
+                    allUnits = units;
+                    renderUnitList(units);
+                })
+                .catch(err => {
+                    console.error('Error loading units:', err);
+                    showToast('Gagal memuat daftar unit', 'error');
+                });
+        }
+
+        // Render unit list
+        function renderUnitList(units) {
+            const container = document.getElementById('unitList');
+            container.innerHTML = '';
+
+            if (!units || units.length === 0) {
+                container.innerHTML = '<div class="text-center text-muted py-3">Tidak ada unit tersedia</div>';
+                return;
+            }
+
+            units.forEach(unit => {
+                const item = document.createElement('div');
+                item.className = 'unit-item';
+                item.onclick = () => selectUnit(unit.code);
+                item.innerHTML = `
+                    <strong>${unit.name}</strong><br>
+                    <small class="text-muted">Kode: ${unit.code}</small>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Select unit
+        function selectUnit(unitCode) {
+            const unit = allUnits.find(u => u.code === unitCode);
+            if (!unit) return;
+
+            if (selectedUnits.some(u => u.code === unitCode)) {
+                showToast('Unit sudah ditambahkan', 'warning');
+                return;
+            }
+
+            selectedUnits.push(unit);
+            renderUnitTags();
+
+            // Update form field immediately
+            updateTenantIdField();
+
+            // Close modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('unitModal'));
+            modal.hide();
+        }
+
+        // Remove unit
+        function removeUnit(index) {
+            selectedUnits.splice(index, 1);
+            renderUnitTags();
+            updateTenantIdField(); // Update form field after removal
+        }
+
+        // Update tenant_id form field and UI
+        function updateTenantIdField() {
+            const tenantIdField = document.getElementById('tenant_id');
+            const tenantIdHidden = document.getElementById('tenant_id_hidden');
+            const selectedUnitDisplay = document.getElementById('selected-unit-display');
+            const selectedUnitText = document.getElementById('selected-unit-text');
+            const unitSelectContainer = document.getElementById('unit-select-container');
+
+            if (selectedUnits.length > 0) {
+                const unit = selectedUnits[0];
+                tenantIdField.value = unit.code;
+                if (tenantIdHidden) tenantIdHidden.value = unit.code;
+
+                // Update display
+                selectedUnitText.textContent = `${unit.name} (${unit.code})`;
+                selectedUnitDisplay.style.display = 'flex';
+                unitSelectContainer.style.display = 'none';
+
+                console.log('Updated tenant_id field to:', unit.code, '- Display:', unit.name);
+            } else {
+                tenantIdField.value = '';
+                if (tenantIdHidden) tenantIdHidden.value = '';
+
+                // Reset display
+                selectedUnitDisplay.style.display = 'none';
+                unitSelectContainer.style.display = 'block';
+
+                console.log('Cleared tenant_id field');
+            }
+        }
+
+        // Render unit tags
+        function renderUnitTags() {
+            const container = document.getElementById('unit-tags');
+            container.innerHTML = '';
+
+            selectedUnits.forEach((unit, index) => {
+                const tag = document.createElement('span');
+                tag.className = 'tag-badge';
+                tag.innerHTML = `
+                    ${unit.name}
+                    <button type="button" class="btn-close" onclick="removeUnit(${index})" aria-label="Remove"></button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+
+        // Check notification visibility
+        function checkNotificationVisibility() {
+            const notificationSection = document.getElementById('notification-section');
+            const leaderRoles = ['Ketua', 'Kepala Sekolah', 'Kepala', 'Leader', 'Pimpinan'];
+
+            const hasLeaderRole = selectedJabatans.some(jabatan =>
+                leaderRoles.some(role => jabatan.toLowerCase().includes(role.toLowerCase()))
+            );
+
+            notificationSection.style.display = hasLeaderRole ? 'block' : 'none';
+        }
+
+        // Handle jabatan select change
+        document.getElementById('jabatan').addEventListener('change', function() {
+            const customDiv = document.getElementById('customJabatanDiv');
+            customDiv.style.display = this.value === 'Lainnya' ? 'block' : 'none';
+        });
+
+        // Handle TMT change for NIY validation
+        document.getElementById('tmt').addEventListener('change', function() {
+            const tmtDate = new Date(this.value);
+            const now = new Date();
+            const diffYears = (now - tmtDate) / (1000 * 60 * 60 * 24 * 365);
+
+            const niyField = document.getElementById('niy');
+            const niyLabel = document.getElementById('niy-label');
+            const niyNote = document.getElementById('niy-note');
+
+            if (diffYears < 2) {
+                // Less than 2 years - NIY optional
+                niyField.required = false;
+                niyLabel.classList.remove('required-field');
+                niyNote.textContent = 'TMT kurang dari 2 tahun, NIY bersifat opsional';
+                niyNote.style.color = 'var(--deep-green)';
+            } else {
+                // 2 years or more - NIY required
+                niyField.required = true;
+                niyLabel.classList.add('required-field');
+                niyNote.textContent = 'TMT 2 tahun atau lebih, NIY wajib diisi';
+                niyNote.style.color = '#dc3545';
+            }
+        });
+
+        // Initialize form data
+        function initializeFormData() {
+            console.log('=== initializeFormData() CALLED ===');
+            const urlParams = new URLSearchParams(window.location.search);
+            const teacherId = urlParams.get('teacherId');
+            console.log('URL teacherId:', teacherId);
+            return teacherId;
+        }
+
+        // Load teacher data
+        async function loadTeacherData(teacherId) {
+            try {
+                console.log('=== FETCHING TEACHER DATA ===');
+                console.log('Teacher ID:', teacherId);
+
+                const token = localStorage.getItem('token');
+                console.log('Token from localStorage:', token ? 'Token exists' : 'No token found');
+
+                // Allow access even without token (for WhatsApp links)
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/api/teacher-data/' + teacherId, {
+                    headers: headers
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response status:', response.status);
+
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                }
+
+                const data = await response.json();
+                console.log('=== API RESPONSE RECEIVED ===');
+                console.log('Response data:', data);
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Fill form fields
+                console.log('=== POPULATING FORM FIELDS ===');
+                Object.keys(data).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) {
+                        let value = data[key];
+                        if (value && (key === 'tanggal_lahir' || key === 'tmt')) {
+                            value = value.split('T')[0];
+                        }
+                        element.value = value || '';
+                        console.log(`Set ${key}: "${element.value}"`);
+                    } else {
+                        console.log(`Element not found: ${key}`);
+                    }
+                });
+
+                // Handle jabatan tags (utama + tambahan)
+                selectedJabatans = [];
+                if (data.jabatan_tambahan) {
+                    // Jika ada jabatan tambahan terpisah
+                    selectedJabatans = data.jabatan_tambahan.split(',').map(j => j.trim());
+                } else if (data.jabatan && data.jabatan.includes(',')) {
+                    // Fallback: parse dari jabatan utama jika mengandung koma
+                    const jabatanParts = data.jabatan.split(',');
+                    selectedJabatans = jabatanParts.slice(1).map(j => j.trim()); // Exclude jabatan utama
+                }
+                if (selectedJabatans.length > 0) {
+                    renderJabatanTags();
+                }
+
+                // Handle units (utama + tambahan)
+                selectedUnits = [];
+                if (data.tenant_id) {
+                    console.log('Loading existing unit for tenant_id:', data.tenant_id);
+                    // Load unit utama
+                    const token = localStorage.getItem('token');
+                    const headers = {};
+                    if (token) {
+                        headers['Authorization'] = `Bearer ${token}`;
+                    }
+
+                    fetch('/api/tenants?code=' + data.tenant_id, {
+                        headers: headers
+                    })
+                        .then(res => res.json())
+                        .then(tenants => {
+                            if (tenants.length > 0) {
+                                selectedUnits = [tenants[0]];
+
+                                // Load unit tambahan jika ada
+                                if (data.accessible_units) {
+                                    try {
+                                        const additionalUnits = JSON.parse(data.accessible_units);
+                                        if (Array.isArray(additionalUnits)) {
+                                            // Load detail untuk setiap unit tambahan
+                                            const token = localStorage.getItem('token');
+                                            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+                                            const unitPromises = additionalUnits.map(unit =>
+                                                fetch('/api/tenants?code=' + unit.code, {
+                                                    headers: headers
+                                                }).then(r => r.json()).then(t => t[0])
+                                            );
+
+                                            Promise.all(unitPromises).then(additionalUnitDetails => {
+                                                selectedUnits = selectedUnits.concat(additionalUnitDetails.filter(u => u));
+                                                renderUnitTags();
+                                                updateTenantIdField();
+                                                console.log('✅ Loaded primary + additional units:', selectedUnits.length, 'total');
+                                            }).catch(err => {
+                                                console.error('Error loading additional units:', err);
+                                                renderUnitTags();
+                                                updateTenantIdField();
+                                            });
+                                        } else {
+                                            renderUnitTags();
+                                            updateTenantIdField();
+                                        }
+                                    } catch (err) {
+                                        console.error('Error parsing accessible_units:', err);
+                                        renderUnitTags();
+                                        updateTenantIdField();
+                                    }
+                                } else {
+                                    renderUnitTags();
+                                    updateTenantIdField();
+                                }
+
+                                console.log('✅ Loaded existing unit:', tenants[0].name, 'Code:', tenants[0].code);
+                            } else {
+                                console.log('⚠️ No tenant data found for code:', data.tenant_id);
+                            }
+                        })
+                        .catch(err => {
+                            console.error('Error loading tenant:', err);
+                            showToast('Gagal memuat data unit sekolah', 'error');
+                        });
+                } else {
+                    console.log('No tenant_id found in teacher data');
+                }
+
+                // Handle existing photo
+                if (data.link_foto) {
+                    console.log('Found existing photo in data:', data.link_foto);
+                    // Delay execution to ensure DOM is ready
+                    setTimeout(() => {
+                        displayExistingPhoto(data.link_foto);
+                        // Make foto field optional since photo already exists
+                        const fotoInput = document.getElementById('foto');
+                        if (fotoInput) {
+                            fotoInput.required = false;
+                            console.log('Foto field set to optional (existing photo found)');
+                        }
+                    }, 100);
+                } else {
+                    console.log('No existing photo found in data');
+                    // Make foto field required if no existing photo
+                    const fotoInput = document.getElementById('foto');
+                    if (fotoInput) {
+                        fotoInput.required = true;
+                        console.log('Foto field set to required (no existing photo)');
+                    }
+                }
+
+                // Check notification visibility
+                checkNotificationVisibility();
+
+                // Trigger TMT validation
+                const tmtField = document.getElementById('tmt');
+                if (tmtField.value) {
+                    tmtField.dispatchEvent(new Event('change'));
+                }
+
+                // Show form
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('completeProfileForm').style.display = 'block';
+                document.getElementById('completeProfileForm').classList.add('fade-in');
+
+                showToast('Data berhasil dimuat! Silakan lengkapi field yang masih kosong.', 'success');
+
+            } catch (error) {
+                console.error('=== LOAD ERROR ===');
+                console.error('Error loading teacher data:', error);
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('error-state').style.display = 'block';
+                document.getElementById('error-message').textContent = 'Gagal memuat data: ' + error.message;
+                showToast('Gagal memuat data guru', 'error');
+            }
+        }
+
+        // Handle form submission
+        async function submitForm(event) {
+            event.preventDefault();
+
+            console.log('=== FORM SUBMIT STARTED ===');
+            const teacherId = document.getElementById('teacherId').value;
+            console.log('Teacher ID for submit:', teacherId);
+
+            if (!teacherId) {
+                showToast('Teacher ID tidak ditemukan', 'error');
+                return;
+            }
+
+            // Validate unit sekolah
+            if (selectedUnits.length === 0) {
+                showToast('Unit sekolah harus dipilih', 'error');
+                document.querySelector('button[onclick="addUnit()"]').scrollIntoView();
+                return;
+            }
+
+            console.log('✅ Unit sekolah validation passed:', selectedUnits[0].name);
+
+            // Validate NIY based on TMT
+            const tmtField = document.getElementById('tmt');
+            const niyField = document.getElementById('niy');
+            const tmtDate = new Date(tmtField.value);
+            const now = new Date();
+            const diffYears = (now - tmtDate) / (1000 * 60 * 60 * 24 * 365);
+
+            if (diffYears >= 2 && !niyField.value.trim()) {
+                showToast('NIY wajib diisi karena TMT sudah 2 tahun atau lebih', 'error');
+                niyField.focus();
+                return;
+            }
+
+            // Combine jabatan
+            const mainJabatan = document.getElementById('jabatan').value;
+            const finalJabatan = selectedJabatans.length > 0
+                ? mainJabatan + ', ' + selectedJabatans.join(', ')
+                : mainJabatan;
+
+            // Set tenant_id from selected units
+            let tenantId = '';
+            if (selectedUnits.length > 0) {
+                tenantId = selectedUnits[0].code;
+            }
+
+            // Normalize WhatsApp number
+            let noWa = document.getElementById('no_wa').value;
+            if (noWa && noWa.startsWith('08')) {
+                noWa = '62' + noWa.slice(1);
+            }
+
+            // Generate scan_id from NIY or NIK
+            let scanId = '';
+            const niy = niyField.value.trim();
+            const nik = document.getElementById('nik').value.trim();
+
+            if (niy.length >= 6) {
+                scanId = niy;
+            } else if (nik) {
+                scanId = nik;
+            }
+
+            try {
+                const form = document.getElementById('completeProfileForm');
+                const formData = new FormData(form);
+
+                // Override form data with processed values
+                formData.set('jabatan', mainJabatan); // Jabatan utama saja
+                formData.set('jabatan_tambahan', selectedJabatans.length > 0 ? selectedJabatans.join(', ') : null); // Jabatan tambahan
+                formData.set('tenant_id', tenantId); // Unit utama
+                formData.set('accessible_units', selectedUnits.length > 1 ? JSON.stringify(selectedUnits.slice(1)) : null); // Unit tambahan (exclude primary)
+                formData.set('no_wa', noWa);
+                formData.set('scan_id', scanId);
+                formData.set('terima_notifikasi', document.getElementById('terima_notifikasi').checked ? '1' : '0');
+
+                console.log('=== SENDING FORM DATA ===');
+                console.log('Total form data entries:', [...formData.entries()].length);
+
+                const allFormData = {};
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value} (${typeof value})`);
+                    allFormData[key] = value;
+                }
+
+                console.log('Complete form data object:', allFormData);
+
+                // Check required fields before sending
+                const requiredFields = ['nama', 'email', 'nik', 'jenis_kelamin', 'tempat_lahir', 'tanggal_lahir', 'alamat', 'no_wa', 'jenjang', 'jabatan', 'sebagai', 'status_kepegawaian', 'tmt', 'status_aktif', 'keterangan', 'tenant_id'];
+                const missingFields = [];
+
+                console.log('=== FORM VALIDATION CHECK ===');
+                console.log('Checking required fields:', requiredFields);
+
+                requiredFields.forEach(field => {
+                    const fieldValue = formData.get(field);
+                    const isEmpty = !fieldValue || fieldValue.toString().trim() === '';
+
+                    if (isEmpty) {
+                        missingFields.push(field);
+                        console.error(`❌ Missing required field: ${field} = "${fieldValue}"`);
+                    } else {
+                        console.log(`✅ Field ${field}: "${fieldValue}"`);
+                    }
+                });
+
+                console.log('Form validation summary:');
+                console.log('- Total required fields:', requiredFields.length);
+                console.log('- Missing fields:', missingFields.length, missingFields);
+
+                if (missingFields.length > 0) {
+                    console.error('FORM VALIDATION FAILED - Missing fields:', missingFields);
+                    showToast(`Field yang belum diisi: ${missingFields.join(', ')}`, 'error');
+                    return;
+                }
+
+                console.log('✅ FORM VALIDATION PASSED - All required fields present');
+
+                const token = localStorage.getItem('token');
+                const headers = {};
+                if (token) {
+                    headers['Authorization'] = `Bearer ${token}`;
+                }
+
+                const response = await fetch('/complete-profile', {
+                    method: 'POST',
+                    headers: headers,
+                    body: formData
+                });
+
+                console.log('=== SUBMIT RESPONSE ===');
+                console.log('Response status:', response.status);
+
+                const result = await response.json();
+                console.log('Response data:', result);
+
+                if (result.success) {
+                    showToast('Data berhasil disimpan!', 'success');
+                    setTimeout(() => {
+                        // Redirect to appropriate dashboard based on role
+                        const jabatan = result.teacher?.jabatan || currentData?.jabatan;
+                        let dashboardUrl = '/guru/index.html'; // default
+
+                        if (jabatan === 'Admin') {
+                            dashboardUrl = currentData?.tenant_id === 'YPWILUTIM' ? '/admin/pusat/' : '/admin/sekolah/';
+                        } else if (jabatan === 'Bendahara') {
+                            dashboardUrl = currentData?.tenant_id === 'YPWILUTIM' ? '/bendahara/pusat/' : '/bendahara/sekolah/';
+                        } else if (jabatan === 'Ketua') {
+                            dashboardUrl = currentData?.tenant_id === 'YPWILUTIM' ? '/ketua/pusat/' : '/ketua/sekolah/';
+                        }
+
+                        window.location.href = dashboardUrl;
+                    }, 2000);
+                } else {
+                    showToast(result.message || 'Terjadi kesalahan saat menyimpan data.', 'error');
+                }
+
+            } catch (error) {
+                console.error('=== SUBMIT ERROR ===');
+                console.error('Submit error:', error);
+                showToast('Terjadi kesalahan: ' + error.message, 'error');
+            }
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DOMContentLoaded FIRED ===');
+
+            const teacherId = initializeFormData();
+            console.log('=== INITIALIZATION RESULT ===');
+            console.log('Teacher ID:', teacherId);
+
+            if (!teacherId) {
+                document.getElementById('loading-state').style.display = 'none';
+                document.getElementById('error-state').style.display = 'block';
+                document.getElementById('error-message').textContent = 'Teacher ID tidak ditemukan di URL. Pastikan Anda mengakses halaman dengan benar.';
+                showToast('Teacher ID tidak ditemukan', 'error');
+                return;
+            }
+
+            // Set teacher ID in form
+            document.getElementById('teacherId').value = teacherId;
+
+            // Load teacher data
+            loadTeacherData(teacherId);
+
+            // Add form submit handler
+            document.getElementById('completeProfileForm').addEventListener('submit', submitForm);
+
+            console.log('=== INITIALIZATION COMPLETE ===');
+        });
+    </script>
+</body>
+</html>

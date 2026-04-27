@@ -1,0 +1,54 @@
+{"level":"info","message":"🚀 Server running on port 3001 in development mode","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.717Z"}
+{"level":"info","message":"📱 WhatsApp API Device ID: mock_device_id","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.722Z"}
+{"level":"info","message":"🌐 API URL: https://app.whacenter.id/apisend","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.723Z"}
+{"level":"warn","message":"⚠️  WhatsApp Device ID is set to mock mode for development","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.723Z"}
+{"level":"info","message":"💡 To enable WhatsApp notifications:","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.723Z"}
+{"level":"info","message":"   1. Login to https://app.whacenter.com/","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.724Z"}
+{"level":"info","message":"   2. Go to Device menu > Add Device Multidevice","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.724Z"}
+{"level":"info","message":"   3. Scan QR code with your WhatsApp","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.725Z"}
+{"level":"info","message":"   4. Copy Device ID to .env file","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.726Z"}
+{"level":"info","message":"🔧 Alternative: Use Fonnte API if Whacenter unavailable","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.726Z"}
+{"level":"info","message":"📋 Available endpoints:","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.726Z"}
+{"level":"info","message":"   - GET  / (Root page - index.html)","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.727Z"}
+{"level":"info","message":"   - GET  /api/test-db (Database connection test)","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.727Z"}
+{"level":"info","message":"   - POST /api/login (Authentication)","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.727Z"}
+{"level":"info","message":"   - GET  /api/news (News articles)","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.728Z"}
+{"level":"info","message":"   - GET  /api/blog (Blog posts)","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.728Z"}
+{"level":"info","message":"Connected to MySQL database successfully","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.728Z"}
+{"level":"info","message":"Connected to MySQL database successfully","service":"ypwi-web-app","timestamp":"2026-04-22T08:29:13.757Z"}
+{"level":"info","message":"🚀 Server running on port 3001 in development mode","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.311Z"}
+{"level":"info","message":"📱 WhatsApp API Device ID: mock_device_id","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.315Z"}
+{"level":"info","message":"🌐 API URL: https://app.whacenter.id/apisend","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.316Z"}
+{"level":"warn","message":"⚠️  WhatsApp Device ID is set to mock mode for development","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.316Z"}
+{"level":"info","message":"💡 To enable WhatsApp notifications:","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.317Z"}
+{"level":"info","message":"   1. Login to https://app.whacenter.com/","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.317Z"}
+{"level":"info","message":"   2. Go to Device menu > Add Device Multidevice","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.318Z"}
+{"level":"info","message":"   3. Scan QR code with your WhatsApp","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.318Z"}
+{"level":"info","message":"   4. Copy Device ID to .env file","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.319Z"}
+{"level":"info","message":"🔧 Alternative: Use Fonnte API if Whacenter unavailable","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.319Z"}
+{"level":"info","message":"📋 Available endpoints:","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.320Z"}
+{"level":"info","message":"   - GET  / (Root page - index.html)","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.320Z"}
+{"level":"info","message":"   - GET  /api/test-db (Database connection test)","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.321Z"}
+{"level":"info","message":"   - POST /api/login (Authentication)","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.321Z"}
+{"level":"info","message":"   - GET  /api/news (News articles)","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.321Z"}
+{"level":"info","message":"   - GET  /api/blog (Blog posts)","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.322Z"}
+{"level":"info","message":"Connected to MySQL database successfully","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.322Z"}
+{"level":"info","message":"Connected to MySQL database successfully","service":"ypwi-web-app","timestamp":"2026-04-22T08:37:55.350Z"}
+{"level":"info","message":"🚀 Server running on port 3001 in development mode","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.317Z"}
+{"level":"info","message":"📱 WhatsApp API Device ID: mock_device_id","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.321Z"}
+{"level":"info","message":"🌐 API URL: https://app.whacenter.id/apisend","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.322Z"}
+{"level":"warn","message":"⚠️  WhatsApp Device ID is set to mock mode for development","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.322Z"}
+{"level":"info","message":"💡 To enable WhatsApp notifications:","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.323Z"}
+{"level":"info","message":"   1. Login to https://app.whacenter.com/","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.323Z"}
+{"level":"info","message":"   2. Go to Device menu > Add Device Multidevice","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.324Z"}
+{"level":"info","message":"   3. Scan QR code with your WhatsApp","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.324Z"}
+{"level":"info","message":"   4. Copy Device ID to .env file","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.324Z"}
+{"level":"info","message":"🔧 Alternative: Use Fonnte API if Whacenter unavailable","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.325Z"}
+{"level":"info","message":"📋 Available endpoints:","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.325Z"}
+{"level":"info","message":"   - GET  / (Root page - index.html)","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.326Z"}
+{"level":"info","message":"   - GET  /api/test-db (Database connection test)","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.326Z"}
+{"level":"info","message":"   - POST /api/login (Authentication)","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.326Z"}
+{"level":"info","message":"   - GET  /api/news (News articles)","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.326Z"}
+{"level":"info","message":"   - GET  /api/blog (Blog posts)","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.327Z"}
+{"level":"info","message":"Connected to MySQL database successfully","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.327Z"}
+{"level":"info","message":"Connected to MySQL database successfully","service":"ypwi-web-app","timestamp":"2026-04-22T09:00:28.352Z"}

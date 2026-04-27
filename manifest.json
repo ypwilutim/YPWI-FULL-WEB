@@ -1,0 +1,27 @@
+{
+  "name": "YPWI Absensi",
+  "short_name": "YPWI Absensi",
+  "description": "Sistem Absensi Digital YPWI Luwu Timur",
+  "start_url": "/absensi/absensi.html",
+  "display": "standalone",
+  "background_color": "#f0f9ff",
+  "theme_color": "#1f8a4a",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/images/YPWI LOGO HITAM.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/YPWI LOGO HITAM.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "education"],
+  "lang": "id-ID"
+}
